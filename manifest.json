@@ -1,13 +1,12 @@
 {
   "name": "Apex IDE",
   "short_name": "Apex IDE",
-  "description": "The world's most complete web-based development environment",
+  "description": "Full-featured web IDE with GLM AI",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d0d0f",
-  "theme_color": "#7c3aed",
-  "orientation": "landscape",
-  "categories": ["developer", "productivity", "utilities"],
+  "theme_color": "#5b21b6",
+  "orientation": "any",
   "icons": [
     { "src": "icons/icon-72.png",  "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
     { "src": "icons/icon-96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
@@ -19,54 +18,24 @@
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    {
-      "name": "New File",
-      "short_name": "New File",
-      "description": "Create a new file",
-      "url": "/?action=new",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Open Folder",
-      "short_name": "Open Folder",
-      "description": "Open a local folder",
-      "url": "/?action=open",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "icons/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Apex IDE — Desktop"
-    },
-    {
-      "src": "icons/screenshot-narrow.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Apex IDE — Mobile"
-    }
+    { "name": "New File", "url": "/?action=new", "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "Open Folder", "url": "/?action=open", "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] }
   ],
   "file_handlers": [
     {
       "action": "/",
       "accept": {
-        "text/plain": [".txt", ".log", ".md", ".env"],
-        "text/html": [".html", ".htm"],
-        "text/css": [".css", ".scss", ".less"],
-        "text/javascript": [".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"],
-        "application/json": [".json", ".jsonc"],
+        "text/plain": [".txt",".md",".log",".env",".gitignore"],
+        "text/html": [".html",".htm",".vue",".svelte"],
+        "text/css": [".css",".scss",".less",".sass"],
+        "text/javascript": [".js",".mjs",".cjs",".jsx",".ts",".tsx"],
+        "application/json": [".json",".jsonc"],
         "text/x-python": [".py"],
         "text/x-rust": [".rs"],
-        "text/x-go": [".go"]
+        "text/x-go": [".go"],
+        "text/x-java": [".java"],
+        "text/x-csrc": [".c",".h",".cpp",".cc",".hpp"]
       }
     }
-  ],
-  "protocol_handlers": [
-    { "protocol": "web+apex", "url": "/?open=%s" }
-  ],
-  "edge_side_panel": { "preferred_width": 400 }
+  ]
 }
