@@ -1,488 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0d0d0f" />
-  <meta name="description" content="Apex IDE — The world's most advanced web-based IDE" />
-  <title>Apex IDE</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Apex IDE</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="icons/icon-192.png"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#0d0d0f;color:#e0e0e8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px}
+button,input,select,textarea{font-family:inherit;font-size:13px}
+button{cursor:pointer;border:none;background:none;color:inherit}
+input,textarea{border:none;outline:none;color:inherit;background:none}
+select{cursor:pointer;color:inherit;outline:none}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#333344;border-radius:3px}
 
-  <!-- Monaco Editor -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
-  <!-- xterm.js -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addon-fit.min.js"></script>
-  <!-- highlight.js for AI chat code blocks -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+/* Layout */
+#app{display:flex;flex-direction:column;height:100vh;width:100vw}
+#titlebar{height:34px;background:#111118;border-bottom:1px solid #222230;display:flex;align-items:center;padding:0 8px;gap:4px;flex-shrink:0;z-index:100}
+#main{display:flex;flex:1;overflow:hidden}
+#statusbar{height:22px;background:#5b21b6;display:flex;align-items:center;justify-content:space-between;padding:0 6px;flex-shrink:0}
 
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="mobile.css" />
+/* Titlebar */
+.tb-logo{display:flex;align-items:center;gap:6px;font-weight:700;color:#a78bfa;margin-right:8px;font-size:14px}
+.tb-logo svg{flex-shrink:0}
+.tb-menu{display:flex;gap:0}
+.tb-menu-item{padding:3px 8px;border-radius:3px;color:#aaa;cursor:pointer;font-size:12px}
+.tb-menu-item:hover{background:#1e1e2e;color:#e0e0e8}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:4px}
+.tb-btn{padding:3px 10px;border-radius:4px;background:#1e1e2e;border:1px solid #333344;color:#ccc;font-size:12px;transition:all .15s}
+.tb-btn:hover{border-color:#7c3aed;color:#a78bfa}
+.tb-breadcrumb{color:#666;font-size:12px;margin-left:12px}
+
+/* Activity bar */
+#activitybar{width:46px;background:#111118;border-right:1px solid #222230;display:flex;flex-direction:column;align-items:center;padding:4px 0;gap:2px;flex-shrink:0}
+.ab-btn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#555;cursor:pointer;transition:all .15s;position:relative}
+.ab-btn:hover{background:#1e1e2e;color:#aaa}
+.ab-btn.active{color:#a78bfa;background:#1e1e2e}
+.ab-btn.active::before{content:'';position:absolute;left:-4px;width:3px;height:20px;background:#7c3aed;border-radius:0 2px 2px 0}
+.ab-sep{width:24px;height:1px;background:#222230;margin:4px 0}
+.ab-bottom{margin-top:auto}
+
+/* Sidebar */
+#sidebar{width:240px;background:#111118;border-right:1px solid #222230;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .15s}
+#sidebar.collapsed{width:0}
+.panel{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.panel.active{display:flex}
+.panel-head{padding:8px 10px 6px;font-size:11px;font-weight:700;color:#556;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #1a1a28;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-head-btns{display:flex;gap:2px}
+.panel-head-btns button{width:22px;height:22px;border-radius:3px;color:#556;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.panel-head-btns button:hover{background:#1e1e2e;color:#aaa}
+
+/* File tree */
+#fileTree{flex:1;overflow-y:auto;padding:2px 0}
+.tree-empty{padding:20px;text-align:center;color:#444;font-size:12px}
+.tree-item{display:flex;align-items:center;gap:3px;padding:2px 0;cursor:pointer;border-radius:3px;position:relative;user-select:none}
+.tree-item:hover{background:#1a1a28}
+.tree-item.active{background:#2a1a4e}
+.tree-item.selected{background:#1e1e30}
+.tree-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.tree-chevron{width:14px;font-size:10px;color:#444;flex-shrink:0;transition:transform .1s}
+.tree-chevron.open{transform:rotate(90deg)}
+.tree-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:#ccc}
+.tree-item.active .tree-label{color:#e0e0e8}
+.tree-modified{width:6px;height:6px;border-radius:50%;background:#7c3aed;margin-right:4px;flex-shrink:0}
+
+/* Resize handle */
+.resizer{background:transparent;flex-shrink:0;z-index:10}
+.resizer.v{width:3px;cursor:col-resize}
+.resizer.v:hover,.resizer.v.drag{background:#7c3aed}
+.resizer.h{height:3px;cursor:row-resize;width:100%}
+.resizer.h:hover,.resizer.h.drag{background:#7c3aed}
+
+/* Editor area */
+#editorArea{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* Tabs */
+#tabsBar{height:36px;background:#0d0d0f;display:flex;align-items:stretch;border-bottom:1px solid #222230;flex-shrink:0;overflow:hidden}
+#tabsList{display:flex;flex:1;overflow-x:auto;overflow-y:hidden}
+#tabsList::-webkit-scrollbar{height:0}
+.tab{display:flex;align-items:center;gap:5px;padding:0 12px;border-right:1px solid #1a1a28;cursor:pointer;white-space:nowrap;color:#666;font-size:12px;min-width:100px;max-width:180px;flex-shrink:0;position:relative;transition:background .1s}
+.tab:hover{background:#111118;color:#aaa}
+.tab.active{background:#1e1e2e;color:#e0e0e8;border-top:1px solid #7c3aed}
+.tab-icon{font-size:12px}
+.tab-name{flex:1;overflow:hidden;text-overflow:ellipsis}
+.tab-close{width:16px;height:16px;border-radius:2px;display:flex;align-items:center;justify-content:center;opacity:0;font-size:11px;transition:all .1s}
+.tab:hover .tab-close{opacity:.5}
+.tab-close:hover{opacity:1!important;background:#333;color:#ff6b6b}
+.tab.dirty .tab-name::after{content:'●';font-size:8px;color:#7c3aed;margin-left:4px;vertical-align:middle}
+
+/* Editor container */
+#editorWrap{flex:1;display:flex;overflow:hidden;position:relative}
+#welcome{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0d0d0f;z-index:1}
+.wl-logo{display:flex;align-items:center;gap:10px;font-size:28px;font-weight:700;color:#a78bfa;margin-bottom:8px}
+.wl-sub{color:#444;margin-bottom:32px;font-size:14px}
+.wl-actions{display:flex;gap:10px;margin-bottom:40px}
+.wl-btn{padding:9px 20px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .15s}
+.wl-btn.primary{background:#7c3aed;color:#fff;border:none}
+.wl-btn.primary:hover{background:#6d28d9}
+.wl-btn.secondary{background:#1e1e2e;color:#ccc;border:1px solid #333}
+.wl-btn.secondary:hover{border-color:#7c3aed;color:#a78bfa}
+.wl-tips{color:#333;font-size:12px;display:flex;flex-direction:column;gap:4px;text-align:center}
+.wl-tip span{color:#555}
+#monacoEl{position:absolute;inset:0}
+
+/* AI Panel */
+#aiPanel{width:360px;display:flex;flex-direction:column;background:#0a0a12;border-left:1px solid #222230;flex-shrink:0}
+#aiPanel.collapsed{width:0;overflow:hidden}
+.ai-head{padding:8px 10px;border-bottom:1px solid #1a1a28;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ai-head-title{display:flex;align-items:center;gap:6px;font-weight:600;color:#a78bfa;font-size:13px}
+.ai-head-btns{display:flex;gap:4px}
+.ai-head-btns button{width:22px;height:22px;border-radius:3px;color:#555;transition:all .15s}
+.ai-head-btns button:hover{background:#1e1e2e;color:#aaa}
+.ai-model-bar{padding:6px 10px;border-bottom:1px solid #1a1a28;flex-shrink:0}
+.ai-model-bar select{width:100%;padding:4px 6px;background:#1a1a28;border:1px solid #333;border-radius:4px;color:#ccc;font-size:12px}
+.ai-quick-btns{display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px;border-bottom:1px solid #1a1a28;flex-shrink:0}
+.ai-q-btn{padding:3px 8px;border-radius:3px;background:#1a1a28;border:1px solid #2a2a3a;color:#888;font-size:11px;transition:all .15s}
+.ai-q-btn:hover{border-color:#7c3aed;color:#a78bfa}
+#aiMessages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.ai-msg{max-width:92%;word-break:break-word;font-size:13px;line-height:1.55}
+.ai-msg.user{align-self:flex-end;background:#2a1a4e;color:#e0e0e8;padding:7px 10px;border-radius:10px 10px 2px 10px}
+.ai-msg.assistant{align-self:flex-start;background:#111118;border:1px solid #222230;color:#e0e0e8;padding:8px 10px;border-radius:2px 10px 10px 10px}
+.ai-msg.assistant pre{background:#0a0a12;border:1px solid #1a1a28;border-radius:4px;padding:8px;margin:6px 0;overflow-x:auto;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;white-space:pre}
+.ai-msg.assistant code{background:#1a1a28;padding:1px 4px;border-radius:3px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px}
+.ai-msg.system{align-self:center;color:#444;font-size:11px;font-style:italic}
+.ai-typing{align-self:flex-start;padding:8px 12px;background:#111118;border:1px solid #222230;border-radius:2px 10px 10px 10px;color:#555;font-size:13px}
+.dots span{display:inline-block;animation:blink 1.2s infinite;margin:0 1px}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.ai-insert-btn{margin-top:4px;padding:2px 8px;border-radius:3px;background:#1a1a28;border:1px solid #2a2a3a;color:#777;font-size:11px;cursor:pointer;transition:all .15s}
+.ai-insert-btn:hover{border-color:#7c3aed;color:#a78bfa}
+.ai-input-area{padding:8px;border-top:1px solid #1a1a28;flex-shrink:0}
+.ai-input-box{background:#111118;border:1px solid #2a2a3a;border-radius:6px;overflow:hidden;transition:border-color .15s}
+.ai-input-box:focus-within{border-color:#7c3aed}
+#aiInput{width:100%;padding:8px 10px;background:transparent;color:#e0e0e8;resize:none;font-size:13px;line-height:1.5;min-height:52px;max-height:160px}
+.ai-input-footer{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-top:1px solid #1a1a28}
+.ai-ctx-label{font-size:11px;color:#444;display:flex;align-items:center;gap:4px}
+.ai-send{padding:4px 12px;border-radius:4px;background:#7c3aed;color:#fff;font-size:12px;font-weight:600;transition:background .15s}
+.ai-send:hover{background:#6d28d9}
+
+/* Bottom panel */
+#bottomPanel{background:#0a0a12;border-top:1px solid #222230;display:flex;flex-direction:column;flex-shrink:0}
+#bottomPanel.collapsed{height:0!important;overflow:hidden}
+.bp-tabs{display:flex;align-items:center;height:28px;border-bottom:1px solid #1a1a28;background:#111118;flex-shrink:0}
+.bp-tab{padding:0 14px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.06em;color:#444;cursor:pointer;border-bottom:2px solid transparent;text-transform:uppercase;transition:all .15s}
+.bp-tab:hover{color:#888}
+.bp-tab.active{color:#e0e0e8;border-bottom-color:#7c3aed}
+.bp-tab-actions{margin-left:auto;display:flex;gap:2px;padding-right:6px}
+.bp-tab-actions button{width:22px;height:22px;border-radius:3px;color:#444;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.bp-tab-actions button:hover{background:#1e1e2e;color:#aaa}
+.bp-content{flex:1;overflow:hidden}
+.bp-panel{display:none;height:100%;flex-direction:column}
+.bp-panel.active{display:flex}
+
+/* Terminal */
+.term-tabs{display:flex;align-items:center;height:24px;background:#0d0d0f;border-bottom:1px solid #1a1a28;flex-shrink:0;overflow-x:auto}
+.term-tabs::-webkit-scrollbar{height:0}
+.term-tab{padding:0 10px;height:100%;display:flex;align-items:center;gap:5px;cursor:pointer;color:#444;font-size:11px;white-space:nowrap;border-right:1px solid #1a1a28;transition:all .15s}
+.term-tab:hover{background:#111118;color:#888}
+.term-tab.active{background:#1a1a28;color:#ccc}
+.term-tab-close{font-size:10px;opacity:.5;transition:opacity .1s}
+.term-tab:hover .term-tab-close{opacity:1}
+#termContainer{flex:1;overflow:hidden;background:#0d0d0f;padding:4px}
+
+/* Problems / Output */
+.log-area{flex:1;overflow-y:auto;padding:6px 10px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;line-height:1.6}
+.log-line{padding:1px 0}
+.log-line.err{color:#ff6b6b}
+.log-line.warn{color:#fbbf24}
+.log-line.info{color:#60a5fa}
+.log-line.ok{color:#34d399}
+.problem-item{padding:5px 8px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;border-radius:3px;transition:background .1s}
+.problem-item:hover{background:#111118}
+.problem-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.problem-text{color:#e0e0e8;font-size:12px}
+.problem-loc{color:#555;font-size:11px}
+.empty-state{padding:24px;text-align:center;color:#333;font-size:12px}
+
+/* Status bar */
+.sb-left,.sb-right{display:flex;align-items:center}
+.sb-item{padding:0 8px;height:22px;display:flex;align-items:center;color:rgba(255,255,255,.75);font-size:11px;cursor:pointer;white-space:nowrap;transition:background .1s}
+.sb-item:hover{background:rgba(255,255,255,.1)}
+.sb-branch{font-weight:600}
+.sb-ai{background:rgba(255,255,255,.15);border-radius:3px}
+
+/* Command palette */
+#cmdPalette{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding-top:80px}
+#cmdPalette .cp-bg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+#cmdPalette .cp-box{position:relative;z-index:1;width:min(640px,92vw);background:#111118;border:1px solid #333;border-radius:8px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.8)}
+#cpInput{width:100%;padding:12px 16px;font-size:15px;background:transparent;color:#e0e0e8;border-bottom:1px solid #222230}
+#cpResults{max-height:380px;overflow-y:auto}
+.cp-group{padding:4px 14px 2px;font-size:10px;color:#444;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.cp-item{padding:7px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .1s}
+.cp-item:hover,.cp-item.focused{background:#1e1e2e}
+.cp-item-l{display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px}
+.cp-item-icon{width:16px;text-align:center;color:#555;font-size:13px}
+.cp-item-key{font-size:11px;color:#444;background:#0a0a12;padding:1px 6px;border-radius:3px;font-family:monospace}
+
+/* Context menu */
+#ctxMenu{position:fixed;z-index:9999;background:#111118;border:1px solid #2a2a3a;border-radius:6px;min-width:160px;padding:3px;box-shadow:0 8px 24px rgba(0,0,0,.7)}
+.ctx-item{padding:5px 12px;border-radius:3px;cursor:pointer;color:#ccc;font-size:13px;transition:background .1s}
+.ctx-item:hover{background:#1e1e2e}
+.ctx-sep{height:1px;background:#1a1a28;margin:3px 0}
+
+/* Settings modal */
+#settingsModal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center}
+.sm-bg{position:absolute;inset:0;background:rgba(0,0,0,.7)}
+.sm-box{position:relative;z-index:1;width:min(800px,95vw);height:min(560px,90vh);background:#111118;border:1px solid #222230;border-radius:10px;display:flex;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.8)}
+.sm-nav{width:180px;background:#0a0a12;border-right:1px solid #1a1a28;padding:16px 8px;flex-shrink:0}
+.sm-nav h3{color:#e0e0e8;font-size:15px;margin-bottom:14px;padding:0 6px}
+.sm-nav-item{padding:6px 10px;border-radius:4px;cursor:pointer;color:#666;font-size:13px;transition:all .15s}
+.sm-nav-item:hover{background:#111118;color:#aaa}
+.sm-nav-item.active{background:#1e1e2e;color:#a78bfa}
+.sm-main{flex:1;padding:20px;overflow-y:auto}
+.sm-section{margin-bottom:20px}
+.sm-section-title{font-weight:600;color:#e0e0e8;font-size:13px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #1a1a28}
+.sm-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #0d0d0f}
+.sm-label{color:#aaa;font-size:13px}
+.sm-desc{color:#444;font-size:11px;margin-top:2px}
+.sm-ctrl input[type=number],.sm-ctrl select{padding:3px 6px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#ccc;width:90px}
+.sm-ctrl input[type=text],.sm-ctrl input[type=password]{padding:4px 8px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#ccc;width:200px}
+.sm-toggle{width:34px;height:18px;border-radius:9px;background:#2a2a3a;position:relative;cursor:pointer;transition:background .15s;flex-shrink:0}
+.sm-toggle.on{background:#7c3aed}
+.sm-toggle::after{content:'';position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .15s}
+.sm-toggle.on::after{left:19px}
+
+/* Toast */
+#toast{position:fixed;bottom:28px;right:12px;display:flex;flex-direction:column;gap:6px;z-index:99999}
+.toast-item{padding:8px 14px;border-radius:5px;background:#111118;border:1px solid #222230;color:#e0e0e8;font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(0,0,0,.5);animation:toastin .2s ease}
+.toast-item.ok{border-color:#22c55e}.toast-item.err{border-color:#ef4444}.toast-item.warn{border-color:#f59e0b}
+@keyframes toastin{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Inline rename input */
+.rename-input{background:#1a1a28;border:1px solid #7c3aed;color:#e0e0e8;border-radius:2px;padding:1px 4px;font-size:13px;width:140px}
+
+/* Search panel */
+.search-box{padding:8px}
+.search-box input{width:100%;padding:5px 8px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#e0e0e8;font-size:12px;margin-bottom:4px}
+.search-box input:focus{border-color:#7c3aed}
+.search-opts{display:flex;gap:6px;margin-bottom:4px}
+.search-opts label{font-size:11px;color:#666;display:flex;align-items:center;gap:3px;cursor:pointer}
+.search-btn{padding:4px 10px;border-radius:4px;background:#7c3aed;color:#fff;font-size:12px;transition:background .15s}
+.search-btn:hover{background:#6d28d9}
+#searchResults{flex:1;overflow-y:auto;padding:4px}
+.sr-file{margin-bottom:2px}
+.sr-fname{padding:3px 8px;color:#e0e0e8;font-size:12px;font-weight:600}
+.sr-match{padding:2px 8px 2px 20px;color:#888;font-size:11px;cursor:pointer;border-radius:2px;transition:background .1s}
+.sr-match:hover{background:#1a1a28}
+.sr-match mark{background:rgba(124,58,237,.35);color:#c4b5fd;border-radius:2px}
+</style>
 </head>
 <body>
-  <!-- Splash Screen -->
-  <div id="splash">
-    <div class="splash-content">
-      <div class="splash-logo">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-          <polygon points="32,4 60,20 60,44 32,60 4,44 4,20" fill="#7c3aed" opacity="0.15"/>
-          <polygon points="32,10 54,23 54,41 32,54 10,41 10,23" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
-          <polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity="0.6"/>
-          <polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/>
-        </svg>
-        <span>Apex IDE</span>
-      </div>
-      <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
-      <div class="splash-status" id="splashStatus">Initializing...</div>
+<div id="app">
+  <!-- TITLEBAR -->
+  <div id="titlebar">
+    <div class="tb-logo">
+      <svg width="18" height="18" viewBox="0 0 64 64"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity=".8"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/></svg>
+      Apex IDE
+    </div>
+    <div class="tb-menu">
+      <div class="tb-menu-item" onclick="menuFile()">File</div>
+      <div class="tb-menu-item" onclick="menuEdit()">Edit</div>
+      <div class="tb-menu-item" onclick="menuView()">View</div>
+      <div class="tb-menu-item" onclick="menuRun()">Run</div>
+      <div class="tb-menu-item" onclick="openSettings()">Settings</div>
+    </div>
+    <div class="tb-breadcrumb" id="breadcrumb"></div>
+    <div class="tb-right">
+      <button class="tb-btn" id="btnInstall" style="display:none" onclick="installPWA()">⬇ Install App</button>
+      <button class="tb-btn" onclick="toggleAI()">✦ AI</button>
+      <button class="tb-btn" onclick="openSettings()">⚙</button>
     </div>
   </div>
 
-  <!-- App Shell -->
-  <div id="app" class="hidden">
-
-    <!-- Title Bar -->
-    <div id="titlebar">
-      <div class="titlebar-left">
-        <div class="logo-mark">
-          <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
-            <polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity="0.8"/>
-            <polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/>
-          </svg>
-        </div>
-        <div class="menu-bar">
-          <div class="menu-item" data-menu="file">File</div>
-          <div class="menu-item" data-menu="edit">Edit</div>
-          <div class="menu-item" data-menu="view">View</div>
-          <div class="menu-item" data-menu="go">Go</div>
-          <div class="menu-item" data-menu="run">Run</div>
-          <div class="menu-item" data-menu="terminal">Terminal</div>
-          <div class="menu-item" data-menu="help">Help</div>
-        </div>
-      </div>
-      <div class="titlebar-center">
-        <div id="breadcrumb"></div>
-      </div>
-      <div class="titlebar-right">
-        <button class="tb-btn" id="btnInstall" title="Install App" style="display:none">⬇ Install</button>
-        <button class="tb-btn" id="btnToggleAI" title="Toggle AI Panel (Ctrl+Shift+A)">✦ AI</button>
-        <button class="tb-btn" id="btnSettings" title="Settings">⚙</button>
-        <div class="window-controls">
-          <span class="wc wc-min" onclick="minimizeApp()">—</span>
-          <span class="wc wc-max" onclick="maximizeApp()">□</span>
-          <span class="wc wc-close" onclick="closeApp()">✕</span>
-        </div>
+  <!-- MAIN -->
+  <div id="main">
+    <!-- Activity Bar -->
+    <div id="activitybar">
+      <button class="ab-btn active" id="ab-explorer" onclick="switchPanel('explorer')" title="Explorer (Ctrl+Shift+E)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      </button>
+      <button class="ab-btn" id="ab-search" onclick="switchPanel('search')" title="Search (Ctrl+Shift+F)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </button>
+      <button class="ab-btn" id="ab-git" onclick="switchPanel('git')" title="Source Control">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 15V9a4 4 0 00-4-4H9"/><line x1="6" y1="9" x2="6" y2="15"/></svg>
+      </button>
+      <div class="ab-sep"></div>
+      <div class="ab-bottom">
+        <button class="ab-btn" onclick="openSettings()" title="Settings">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
       </div>
     </div>
 
-    <!-- Main Layout -->
-    <div id="main">
-
-      <!-- Activity Bar -->
-      <div id="activitybar">
-        <div class="ab-group top">
-          <button class="ab-btn active" data-panel="explorer" title="Explorer (Ctrl+Shift+E)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
-          </button>
-          <button class="ab-btn" data-panel="search" title="Search (Ctrl+Shift+F)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          </button>
-          <button class="ab-btn" data-panel="git" title="Source Control (Ctrl+Shift+G)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 15v-4a4 4 0 00-4-4H9"/><path d="M6 9v6"/></svg>
-          </button>
-          <button class="ab-btn" data-panel="extensions" title="Extensions (Ctrl+Shift+X)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          </button>
-          <button class="ab-btn" data-panel="debug" title="Run & Debug (Ctrl+Shift+D)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 5v4M12 15v4M5 12H9M15 12h4M7.05 7.05L9.88 9.88M14.12 14.12l2.83 2.83M7.05 16.95l2.83-2.83M14.12 9.88l2.83-2.83"/></svg>
-          </button>
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <!-- Explorer -->
+      <div class="panel active" id="panel-explorer">
+        <div class="panel-head">
+          <span>EXPLORER</span>
+          <div class="panel-head-btns">
+            <button onclick="newFile()" title="New File">+</button>
+            <button onclick="newFolder()" title="New Folder">📁</button>
+            <button onclick="openFolder()" title="Open Folder">📂</button>
+          </div>
         </div>
-        <div class="ab-group bottom">
-          <button class="ab-btn" id="btnAINav" data-panel="ai" title="AI Assistant (Ctrl+Shift+A)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          </button>
-          <button class="ab-btn" data-panel="profile" title="Account">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </button>
+        <div id="noFolderMsg" style="padding:16px 10px">
+          <div style="color:#444;font-size:12px;margin-bottom:10px">No folder opened</div>
+          <button onclick="openFolder()" style="width:100%;padding:6px;background:#1e1e2e;border:1px solid #333;border-radius:4px;color:#aaa;font-size:12px;cursor:pointer">Open Folder</button>
+          <button onclick="newProject()" style="width:100%;padding:6px;background:#7c3aed;border:none;border-radius:4px;color:#fff;font-size:12px;cursor:pointer;margin-top:6px">New Project</button>
         </div>
+        <div id="fileTree" class="hidden"></div>
       </div>
-
-      <!-- Sidebar -->
-      <div id="sidebar">
-        <!-- Explorer Panel -->
-        <div class="panel active" id="panel-explorer">
-          <div class="panel-header">
-            <span>EXPLORER</span>
-            <div class="panel-actions">
-              <button title="New File" onclick="newFile()">+</button>
-              <button title="New Folder" onclick="newFolder()">📁</button>
-              <button title="Open Folder" onclick="openFolder()">📂</button>
-              <button title="Collapse All" onclick="collapseAll()">⊟</button>
-            </div>
+      <!-- Search -->
+      <div class="panel" id="panel-search">
+        <div class="panel-head"><span>SEARCH</span></div>
+        <div class="search-box">
+          <input type="text" id="searchQ" placeholder="Search in files..." onkeydown="if(event.key==='Enter')doSearch()"/>
+          <div class="search-opts">
+            <label><input type="checkbox" id="srCase"/> Match case</label>
+            <label><input type="checkbox" id="srRegex"/> Regex</label>
           </div>
-          <div class="panel-toolbar">
-            <button class="pt-btn" onclick="openFolder()" title="Open local folder">Open Folder</button>
-            <button class="pt-btn" onclick="newProject()" title="New project">New Project</button>
-          </div>
-          <div id="fileTree"></div>
+          <button class="search-btn" onclick="doSearch()">Search</button>
         </div>
-
-        <!-- Search Panel -->
-        <div class="panel" id="panel-search">
-          <div class="panel-header"><span>SEARCH</span></div>
-          <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search in files..." />
-            <div class="search-options">
-              <label><input type="checkbox" id="searchCase" /> Aa</label>
-              <label><input type="checkbox" id="searchWord" /> W</label>
-              <label><input type="checkbox" id="searchRegex" /> .*</label>
-            </div>
-            <input type="text" id="replaceInput" placeholder="Replace..." />
-            <div class="search-btns">
-              <button onclick="doSearch()">Search</button>
-              <button onclick="doReplace()">Replace All</button>
-            </div>
-          </div>
-          <div id="searchResults"></div>
-        </div>
-
-        <!-- Git Panel -->
-        <div class="panel" id="panel-git">
-          <div class="panel-header"><span>SOURCE CONTROL</span></div>
-          <div class="git-panel">
-            <div class="git-section">
-              <div class="git-title">CHANGES</div>
-              <div id="gitChanges"><div class="git-empty">No changes detected</div></div>
-            </div>
-            <div class="git-commit">
-              <textarea id="commitMsg" placeholder="Commit message..."></textarea>
-              <div class="git-actions">
-                <button onclick="gitCommit()">✓ Commit</button>
-                <button onclick="gitPush()">↑ Push</button>
-                <button onclick="gitPull()">↓ Pull</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Extensions Panel -->
-        <div class="panel" id="panel-extensions">
-          <div class="panel-header"><span>EXTENSIONS</span></div>
-          <div class="search-box">
-            <input type="text" id="extSearch" placeholder="Search extensions..." oninput="filterExtensions(this.value)" />
-          </div>
-          <div id="extList"></div>
-        </div>
-
-        <!-- Debug Panel -->
-        <div class="panel" id="panel-debug">
-          <div class="panel-header"><span>RUN & DEBUG</span></div>
-          <div class="debug-panel">
-            <div class="debug-run">
-              <select id="debugConfig">
-                <option>Node.js</option>
-                <option>Python</option>
-                <option>Chrome</option>
-                <option>Custom...</option>
-              </select>
-              <button onclick="startDebug()" class="debug-start">▶ Start Debugging</button>
-            </div>
-            <div class="debug-section">
-              <div class="debug-title">VARIABLES</div>
-              <div id="debugVars"><div class="debug-empty">Not running</div></div>
-            </div>
-            <div class="debug-section">
-              <div class="debug-title">BREAKPOINTS</div>
-              <div id="debugBreakpoints"><div class="debug-empty">No breakpoints</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- AI Panel (sidebar) -->
-        <div class="panel" id="panel-ai">
-          <div class="panel-header"><span>✦ AI ASSISTANT</span></div>
-          <div class="ai-model-select">
-            <select id="aiModel">
-              <option value="glm">GLM-4 (Local-style)</option>
-              <option value="claude">Claude Sonnet</option>
-            </select>
-          </div>
-          <div id="aiChatMessages" class="ai-chat-mini"></div>
-          <div class="ai-input-area">
-            <textarea id="aiInputMini" placeholder="Ask AI anything... (Enter to send)"></textarea>
-            <button onclick="sendAIMessage()" class="ai-send-btn">↑</button>
-          </div>
-        </div>
-
-        <!-- Profile Panel -->
-        <div class="panel" id="panel-profile">
-          <div class="panel-header"><span>ACCOUNT</span></div>
-          <div class="profile-panel">
-            <div class="profile-avatar">👤</div>
-            <div class="profile-name">Local User</div>
-            <div class="profile-actions">
-              <button onclick="syncSettings()">Sync Settings</button>
-              <button onclick="exportSettings()">Export Config</button>
-              <button onclick="importSettings()">Import Config</button>
-            </div>
-          </div>
-        </div>
+        <div id="searchResults" style="flex:1;overflow-y:auto;padding:4px"></div>
       </div>
-
-      <!-- Sidebar Resize Handle -->
-      <div id="sidebarResizer" class="resizer vertical"></div>
-
-      <!-- Editor Area -->
-      <div id="editorArea">
-
-        <!-- Tabs Bar -->
-        <div id="tabsBar">
-          <div id="tabs" class="tabs-list"></div>
-          <div class="tabs-actions">
-            <button title="Split Editor" onclick="splitEditor()">⊞</button>
-            <button title="Close All" onclick="closeAllTabs()">✕✕</button>
-          </div>
-        </div>
-
-        <!-- Editor Container -->
-        <div id="editorContainer">
-          <div id="editorMain">
-            <!-- Welcome screen shown when no file is open -->
-            <div id="welcomeScreen">
-              <div class="welcome-content">
-                <div class="welcome-logo">
-                  <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
-                    <polygon points="32,4 60,20 60,44 32,60 4,44 4,20" fill="#7c3aed" opacity="0.1"/>
-                    <polygon points="32,10 54,23 54,41 32,54 10,41 10,23" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
-                    <polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity="0.5"/>
-                    <polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/>
-                  </svg>
-                </div>
-                <h1>Apex IDE</h1>
-                <p>The world's most complete web-based development environment</p>
-                <div class="welcome-actions">
-                  <button onclick="openFolder()" class="wa-primary">Open Folder</button>
-                  <button onclick="newFile()" class="wa-secondary">New File</button>
-                  <button onclick="newProject()" class="wa-secondary">New Project</button>
-                </div>
-                <div class="welcome-recent">
-                  <h3>Recent</h3>
-                  <div id="recentFiles"></div>
-                </div>
-                <div class="welcome-grid">
-                  <div class="wg-item" onclick="openKeyboard()">
-                    <span class="wg-icon">⌨</span>
-                    <span>Keyboard Shortcuts</span>
-                  </div>
-                  <div class="wg-item" onclick="openSettings()">
-                    <span class="wg-icon">⚙</span>
-                    <span>Settings</span>
-                  </div>
-                  <div class="wg-item" onclick="openThemes()">
-                    <span class="wg-icon">🎨</span>
-                    <span>Color Themes</span>
-                  </div>
-                  <div class="wg-item" onclick="openDocs()">
-                    <span class="wg-icon">📖</span>
-                    <span>Documentation</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="monacoContainer" class="hidden"></div>
-          </div>
-
-          <!-- AI Panel (right side, large) -->
-          <div id="aiPanelRight" class="hidden">
-            <div id="aiResizer" class="resizer vertical"></div>
-            <div id="aiPanelContent">
-              <div class="ai-header">
-                <div class="ai-title">
-                  <svg width="16" height="16" viewBox="0 0 64 64" fill="none"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#a78bfa"/></svg>
-                  <span>AI Assistant</span>
-                </div>
-                <div class="ai-controls">
-                  <select id="aiModelRight">
-                    <option value="claude">Claude Sonnet</option>
-                    <option value="glm">GLM-4</option>
-                  </select>
-                  <button onclick="clearAIChat()" title="Clear chat">🗑</button>
-                  <button onclick="toggleAIPanel()" title="Close">✕</button>
-                </div>
-              </div>
-              <div id="aiMessages" class="ai-messages"></div>
-              <div class="ai-context-bar">
-                <label>
-                  <input type="checkbox" id="aiContextFile" checked />
-                  Include current file
-                </label>
-                <label>
-                  <input type="checkbox" id="aiContextSelection" />
-                  Selection only
-                </label>
-                <button onclick="explainCode()" class="ai-ctx-btn">Explain</button>
-                <button onclick="fixCode()" class="ai-ctx-btn">Fix</button>
-                <button onclick="refactorCode()" class="ai-ctx-btn">Refactor</button>
-                <button onclick="generateTests()" class="ai-ctx-btn">Tests</button>
-                <button onclick="addComments()" class="ai-ctx-btn">Comment</button>
-                <button onclick="optimizeCode()" class="ai-ctx-btn">Optimize</button>
-              </div>
-              <div class="ai-input-wrap">
-                <div class="ai-input-box">
-                  <textarea id="aiInput" placeholder="Ask anything about your code... (Ctrl+Enter to send)" rows="3"></textarea>
-                  <div class="ai-input-actions">
-                    <button onclick="attachFile()" title="Attach file" class="ai-attach">📎</button>
-                    <button onclick="sendAI()" class="ai-send">Send ↑</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bottom Panel -->
-        <div id="bottomResizer" class="resizer horizontal"></div>
-        <div id="bottomPanel">
-          <div class="bottom-tabs">
-            <button class="bt-tab active" data-btab="terminal" onclick="switchBottomTab('terminal')">TERMINAL</button>
-            <button class="bt-tab" data-btab="problems" onclick="switchBottomTab('problems')">PROBLEMS</button>
-            <button class="bt-tab" data-btab="output" onclick="switchBottomTab('output')">OUTPUT</button>
-            <button class="bt-tab" data-btab="console" onclick="switchBottomTab('console')">DEBUG CONSOLE</button>
-            <div class="bottom-tab-actions">
-              <button onclick="addTerminal()" title="New Terminal">+</button>
-              <button onclick="killTerminal()" title="Kill Terminal">🗑</button>
-              <button onclick="toggleBottomPanel()" title="Toggle Panel">⊟</button>
-            </div>
-          </div>
-          <div class="bottom-content">
-            <div id="btab-terminal" class="btab-panel active">
-              <div id="terminalTabs" class="term-tabs"></div>
-              <div id="terminalContainer"></div>
-            </div>
-            <div id="btab-problems" class="btab-panel">
-              <div id="problemsList"><div class="empty-state">No problems detected</div></div>
-            </div>
-            <div id="btab-output" class="btab-panel">
-              <div id="outputContent" class="output-log"></div>
-            </div>
-            <div id="btab-console" class="btab-panel">
-              <div id="debugConsole" class="output-log"></div>
-              <div class="debug-input-bar">
-                <span>&gt;</span>
-                <input type="text" id="debugInput" placeholder="Evaluate expression..." onkeydown="evalDebug(event)" />
-              </div>
-            </div>
+      <!-- Git -->
+      <div class="panel" id="panel-git">
+        <div class="panel-head"><span>SOURCE CONTROL</span></div>
+        <div style="padding:8px;flex:1;overflow-y:auto">
+          <div style="font-size:11px;color:#444;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Changes</div>
+          <div id="gitChanges"><div class="empty-state">No changes</div></div>
+          <textarea id="gitMsg" placeholder="Commit message..." style="width:100%;height:54px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#ccc;padding:6px;resize:none;margin-top:8px;font-size:12px"></textarea>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <button onclick="gitCommit()" style="flex:1;padding:5px;background:#1e1e2e;border:1px solid #333;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer">✓ Commit</button>
+            <button onclick="gitPush()" style="flex:1;padding:5px;background:#1e1e2e;border:1px solid #333;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer">↑ Push</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Status Bar -->
-    <div id="statusbar">
-      <div class="sb-left">
-        <span class="sb-item sb-branch" id="sbBranch" title="Source Control">⎇ main</span>
-        <span class="sb-item" id="sbErrors" title="Problems">✕ 0  ⚠ 0</span>
+    <div class="resizer v" id="sidebarResizer"></div>
+
+    <!-- Editor Area -->
+    <div id="editorArea">
+      <div id="tabsBar">
+        <div id="tabsList"></div>
       </div>
-      <div class="sb-right">
-        <span class="sb-item" id="sbLang" title="Select Language Mode">Plain Text</span>
-        <span class="sb-item" id="sbEncoding" title="Select Encoding">UTF-8</span>
-        <span class="sb-item" id="sbEol" title="Select End of Line Sequence">LF</span>
-        <span class="sb-item" id="sbCursor" title="Go to Line">Ln 1, Col 1</span>
-        <span class="sb-item" id="sbIndent" title="Select Indentation">Spaces: 2</span>
-        <span class="sb-item" id="sbSpaces">⎵ Spaces</span>
-        <span class="sb-item sb-notify" id="sbAI" onclick="toggleAIPanel()" title="AI Assistant">✦ AI Ready</span>
+      <div id="editorWrap">
+        <div id="welcome">
+          <div class="wl-logo">
+            <svg width="36" height="36" viewBox="0 0 64 64"><polygon points="32,10 54,23 54,41 32,54 10,41 10,23" fill="none" stroke="#7c3aed" stroke-width="2"/><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity=".6"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/></svg>
+            Apex IDE
+          </div>
+          <div class="wl-sub">Full-featured web IDE · GLM-5.1 AI · All languages</div>
+          <div class="wl-actions">
+            <button class="wl-btn primary" onclick="openFolder()">Open Folder</button>
+            <button class="wl-btn secondary" onclick="newFile()">New File</button>
+            <button class="wl-btn secondary" onclick="newProject()">New Project</button>
+          </div>
+          <div class="wl-tips">
+            <div><span>Ctrl+P</span> — Quick Open &nbsp;|&nbsp; <span>Ctrl+Shift+P</span> — Command Palette</div>
+            <div><span>Ctrl+`</span> — Terminal &nbsp;|&nbsp; <span>Ctrl+Shift+A</span> — AI Panel</div>
+          </div>
+        </div>
+        <div id="monacoEl" class="hidden"></div>
+      </div>
+
+      <div class="resizer h" id="bottomResizer"></div>
+
+      <!-- Bottom Panel -->
+      <div id="bottomPanel" style="height:200px">
+        <div class="bp-tabs">
+          <div class="bp-tab active" onclick="switchBP('terminal')">TERMINAL</div>
+          <div class="bp-tab" onclick="switchBP('problems')">PROBLEMS</div>
+          <div class="bp-tab" onclick="switchBP('output')">OUTPUT</div>
+          <div class="bp-tab-actions">
+            <button onclick="addTerminal()" title="New Terminal" style="font-size:16px">+</button>
+            <button onclick="document.getElementById('bottomPanel').classList.toggle('collapsed')" title="Toggle" style="font-size:12px">⊟</button>
+          </div>
+        </div>
+        <div class="bp-content">
+          <div class="bp-panel active" id="bp-terminal" style="flex-direction:column">
+            <div class="term-tabs" id="termTabs"></div>
+            <div id="termContainer"></div>
+          </div>
+          <div class="bp-panel" id="bp-problems">
+            <div class="log-area" id="problemsList"><div class="empty-state">No problems detected</div></div>
+          </div>
+          <div class="bp-panel" id="bp-output">
+            <div class="log-area" id="outputLog"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="resizer v" id="aiResizer"></div>
+
+    <!-- AI Panel -->
+    <div id="aiPanel" class="collapsed">
+      <div class="ai-head">
+        <div class="ai-head-title">
+          <svg width="14" height="14" viewBox="0 0 64 64"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#a78bfa"/></svg>
+          AI Assistant
+        </div>
+        <div class="ai-head-btns">
+          <button onclick="clearAI()" title="Clear">🗑</button>
+          <button onclick="toggleAI()" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="ai-model-bar">
+        <select id="aiModel">
+          <option value="glm-4-flash">GLM-4-Flash (Free)</option>
+          <option value="glm-4">GLM-4</option>
+          <option value="glm-4-plus">GLM-4-Plus</option>
+          <option value="glm-z1-flash">GLM-Z1-Flash</option>
+        </select>
+      </div>
+      <div class="ai-quick-btns">
+        <button class="ai-q-btn" onclick="aiAction('explain')">Explain</button>
+        <button class="ai-q-btn" onclick="aiAction('fix')">Fix Bug</button>
+        <button class="ai-q-btn" onclick="aiAction('refactor')">Refactor</button>
+        <button class="ai-q-btn" onclick="aiAction('tests')">Gen Tests</button>
+        <button class="ai-q-btn" onclick="aiAction('docs')">Add Docs</button>
+        <button class="ai-q-btn" onclick="aiAction('optimize')">Optimize</button>
+        <button class="ai-q-btn" onclick="aiAction('complete')">Complete</button>
+      </div>
+      <div id="aiMessages"></div>
+      <div class="ai-input-area">
+        <div class="ai-input-box">
+          <textarea id="aiInput" placeholder="Ask anything about your code... (Enter to send, Shift+Enter for newline)"></textarea>
+          <div class="ai-input-footer">
+            <label class="ai-ctx-label"><input type="checkbox" id="aiUseCtx" checked/> Include file context</label>
+            <button class="ai-send" onclick="sendAI()">Send ↑</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Context Menu -->
-  <div id="contextMenu" class="context-menu hidden">
-    <div class="cm-item" data-action="newFile">New File</div>
-    <div class="cm-item" data-action="newFolder">New Folder</div>
-    <div class="cm-sep"></div>
-    <div class="cm-item" data-action="rename">Rename</div>
-    <div class="cm-item" data-action="delete">Delete</div>
-    <div class="cm-sep"></div>
-    <div class="cm-item" data-action="copy">Copy Path</div>
-    <div class="cm-item" data-action="copyRel">Copy Relative Path</div>
-  </div>
-
-  <!-- Command Palette -->
-  <div id="commandPalette" class="hidden">
-    <div class="cp-overlay"></div>
-    <div class="cp-dialog">
-      <input type="text" id="cpInput" placeholder="Type a command..." />
-      <div id="cpResults"></div>
+  <!-- STATUS BAR -->
+  <div id="statusbar">
+    <div class="sb-left">
+      <span class="sb-item sb-branch" id="sbBranch">⎇ main</span>
+      <span class="sb-item" id="sbProblems">✕ 0 ⚠ 0</span>
+    </div>
+    <div class="sb-right">
+      <span class="sb-item" id="sbLang" onclick="changeLang()">Plain Text</span>
+      <span class="sb-item" id="sbCursor">Ln 1, Col 1</span>
+      <span class="sb-item" id="sbIndent">Spaces: 2</span>
+      <span class="sb-item" id="sbEncoding">UTF-8</span>
+      <span class="sb-item sb-ai" onclick="toggleAI()">✦ GLM-5.1 Ready</span>
     </div>
   </div>
+</div>
 
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal hidden">
-    <div class="modal-overlay" onclick="closeSettings()"></div>
-    <div class="modal-content settings-content">
-      <div class="settings-sidebar">
-        <h3>Settings</h3>
-        <div class="settings-nav">
-          <div class="sn-item active" data-stab="editor">Editor</div>
-          <div class="sn-item" data-stab="theme">Appearance</div>
-          <div class="sn-item" data-stab="terminal">Terminal</div>
-          <div class="sn-item" data-stab="ai">AI</div>
-          <div class="sn-item" data-stab="keybindings">Keybindings</div>
-          <div class="sn-item" data-stab="extensions">Extensions</div>
-        </div>
-      </div>
-      <div class="settings-main" id="settingsMain"></div>
-    </div>
+<!-- OVERLAYS -->
+<div id="cmdPalette" class="hidden">
+  <div class="cp-bg" onclick="closeCmdPalette()"></div>
+  <div class="cp-box">
+    <input id="cpInput" type="text" placeholder="Type a command or file name..." oninput="filterCmdPalette(this.value)" onkeydown="cmdPaletteKey(event)"/>
+    <div id="cpResults"></div>
   </div>
+</div>
 
-  <!-- Keyboard Shortcuts Help -->
-  <div id="shortcutsModal" class="modal hidden">
-    <div class="modal-overlay" onclick="closeShortcuts()"></div>
-    <div class="modal-content shortcuts-content" id="shortcutsContent"></div>
+<div id="ctxMenu" class="hidden"></div>
+<div id="settingsModal" class="hidden">
+  <div class="sm-bg" onclick="closeSettings()"></div>
+  <div class="sm-box">
+    <div class="sm-nav">
+      <h3>Settings</h3>
+      <div class="sm-nav-item active" onclick="settingsTab('editor',this)">Editor</div>
+      <div class="sm-nav-item" onclick="settingsTab('ai',this)">AI</div>
+      <div class="sm-nav-item" onclick="settingsTab('theme',this)">Theme</div>
+      <div class="sm-nav-item" onclick="settingsTab('terminal',this)">Terminal</div>
+      <div class="sm-nav-item" onclick="settingsTab('keybindings',this)">Keybindings</div>
+    </div>
+    <div class="sm-main" id="settingsMain"></div>
   </div>
+</div>
+<div id="toast"></div>
 
-  <!-- Notification Toast -->
-  <div id="toastContainer"></div>
-
-  <!-- Drag and drop overlay -->
-  <div id="dropOverlay"><span>📂</span><span>Drop files or folders here</span></div>
-
-  <!-- Mobile bottom toolbar -->
-  <div id="mobileToolbar">
-    <div class="mt-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
-      <span>Files</span>
-    </div>
-    <div class="mt-btn" onclick="openCommandPalette()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <span>Search</span>
-    </div>
-    <div class="mt-btn" onclick="newFile()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      <span>New</span>
-    </div>
-    <div class="mt-btn" onclick="toggleBottomPanel(); switchBottomTab('terminal')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-      <span>Terminal</span>
-    </div>
-    <div class="mt-btn" onclick="toggleAIPanel()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      <span>AI</span>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-  <script src="features.js"></script>
-  <script>
-    // Register Service Worker for PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-      });
-    }
-  </script>
+<!-- Scripts -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addon-fit.min.js"></script>
+<script>var require = { paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } };</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+<script src="app.js"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
 </body>
 </html>
