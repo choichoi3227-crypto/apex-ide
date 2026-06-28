@@ -2,7 +2,5 @@ name = "apex-ide"
 
 compatibility_date = "2025-06-28"
 
-pages_build_output_dir = "."
-
 [assets]
 directory = "./dist"
