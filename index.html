@@ -8,491 +8,663 @@
 <link rel="icon" href="icons/icon-192.png"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:#0d0d0f;color:#e0e0e8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px}
+html,body{height:100%;overflow:hidden;background:#0d0d0f;color:#e0e0e8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13px}
 button,input,select,textarea{font-family:inherit;font-size:13px}
 button{cursor:pointer;border:none;background:none;color:inherit}
 input,textarea{border:none;outline:none;color:inherit;background:none}
 select{cursor:pointer;color:inherit;outline:none}
 .hidden{display:none!important}
-::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#333344;border-radius:3px}
+::-webkit-scrollbar-thumb{background:#2a2a3e;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#3a3a50}
 
-/* Layout */
+/* ── APP SHELL ── */
 #app{display:flex;flex-direction:column;height:100vh;width:100vw}
-#titlebar{height:34px;background:#111118;border-bottom:1px solid #222230;display:flex;align-items:center;padding:0 8px;gap:4px;flex-shrink:0;z-index:100}
-#main{display:flex;flex:1;overflow:hidden}
-#statusbar{height:22px;background:#5b21b6;display:flex;align-items:center;justify-content:space-between;padding:0 6px;flex-shrink:0}
 
-/* Titlebar */
-.tb-logo{display:flex;align-items:center;gap:6px;font-weight:700;color:#a78bfa;margin-right:8px;font-size:14px}
-.tb-logo svg{flex-shrink:0}
-.tb-menu{display:flex;gap:0}
-.tb-menu-item{padding:3px 8px;border-radius:3px;color:#aaa;cursor:pointer;font-size:12px}
-.tb-menu-item:hover{background:#1e1e2e;color:#e0e0e8}
-.tb-right{margin-left:auto;display:flex;align-items:center;gap:4px}
-.tb-btn{padding:3px 10px;border-radius:4px;background:#1e1e2e;border:1px solid #333344;color:#ccc;font-size:12px;transition:all .15s}
+/* ── TITLEBAR ── */
+#titlebar{height:36px;background:#0a0a10;border-bottom:1px solid #1e1e2e;display:flex;align-items:center;padding:0 8px;gap:2px;flex-shrink:0;z-index:200}
+.tb-logo{display:flex;align-items:center;gap:7px;font-weight:700;color:#a78bfa;margin-right:6px;font-size:14px;letter-spacing:-.3px}
+.tb-menu{display:flex}
+.tb-mi{padding:4px 9px;border-radius:4px;color:#8888aa;cursor:pointer;font-size:12px;transition:all .12s;user-select:none}
+.tb-mi:hover{background:#1a1a2e;color:#e0e0e8}
+.tb-sep{flex:1}
+.tb-btn{padding:3px 10px;border-radius:4px;background:#1a1a2e;border:1px solid #2a2a3e;color:#aaa;font-size:12px;transition:all .12s;margin-left:4px}
 .tb-btn:hover{border-color:#7c3aed;color:#a78bfa}
-.tb-breadcrumb{color:#666;font-size:12px;margin-left:12px}
+.tb-btn.accent{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.tb-btn.accent:hover{background:#6d28d9}
+.tb-breadcrumb{font-size:11px;color:#444;margin-left:8px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-ai-status{display:flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:11px;cursor:pointer;transition:all .12s}
+.tb-ai-status.connected{background:#052e16;border:1px solid #16a34a;color:#4ade80}
+.tb-ai-status.connecting{background:#1c1917;border:1px solid #78350f;color:#fbbf24}
+.tb-ai-status.disconnected{background:#1a0a0a;border:1px solid #7f1d1d;color:#f87171}
+.tb-ai-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
-/* Activity bar */
-#activitybar{width:46px;background:#111118;border-right:1px solid #222230;display:flex;flex-direction:column;align-items:center;padding:4px 0;gap:2px;flex-shrink:0}
-.ab-btn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#555;cursor:pointer;transition:all .15s;position:relative}
-.ab-btn:hover{background:#1e1e2e;color:#aaa}
-.ab-btn.active{color:#a78bfa;background:#1e1e2e}
-.ab-btn.active::before{content:'';position:absolute;left:-4px;width:3px;height:20px;background:#7c3aed;border-radius:0 2px 2px 0}
-.ab-sep{width:24px;height:1px;background:#222230;margin:4px 0}
-.ab-bottom{margin-top:auto}
+/* ── MAIN ── */
+#main{display:flex;flex:1;overflow:hidden;min-height:0}
 
-/* Sidebar */
-#sidebar{width:240px;background:#111118;border-right:1px solid #222230;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .15s}
-#sidebar.collapsed{width:0}
-.panel{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0}
-.panel.active{display:flex}
-.panel-head{padding:8px 10px 6px;font-size:11px;font-weight:700;color:#556;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #1a1a28;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.panel-head-btns{display:flex;gap:2px}
-.panel-head-btns button{width:22px;height:22px;border-radius:3px;color:#556;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.panel-head-btns button:hover{background:#1e1e2e;color:#aaa}
+/* ── ACTIVITY BAR ── */
+#actbar{width:46px;background:#0a0a10;border-right:1px solid #1e1e2e;display:flex;flex-direction:column;align-items:center;padding:4px 0;gap:1px;flex-shrink:0}
+.ab{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:7px;color:#444;cursor:pointer;transition:all .12s;position:relative}
+.ab:hover{background:#1a1a2e;color:#888}
+.ab.on{color:#a78bfa;background:#180d36}
+.ab.on::before{content:'';position:absolute;left:-4px;width:3px;height:22px;background:#7c3aed;border-radius:0 3px 3px 0}
+.ab-gap{flex:1}
 
-/* File tree */
-#fileTree{flex:1;overflow-y:auto;padding:2px 0}
-.tree-empty{padding:20px;text-align:center;color:#444;font-size:12px}
-.tree-item{display:flex;align-items:center;gap:3px;padding:2px 0;cursor:pointer;border-radius:3px;position:relative;user-select:none}
-.tree-item:hover{background:#1a1a28}
-.tree-item.active{background:#2a1a4e}
-.tree-item.selected{background:#1e1e30}
-.tree-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
-.tree-chevron{width:14px;font-size:10px;color:#444;flex-shrink:0;transition:transform .1s}
-.tree-chevron.open{transform:rotate(90deg)}
-.tree-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:#ccc}
-.tree-item.active .tree-label{color:#e0e0e8}
-.tree-modified{width:6px;height:6px;border-radius:50%;background:#7c3aed;margin-right:4px;flex-shrink:0}
+/* ── SIDEBAR ── */
+#sidebar{width:240px;background:#0a0a10;border-right:1px solid #1e1e2e;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .15s}
+#sidebar.off{width:0}
+.pnl{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.pnl.on{display:flex}
+.pnl-hd{padding:8px 10px 6px;font-size:10px;font-weight:800;color:#333;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #141420;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pnl-hd-btns{display:flex;gap:2px}
+.pnl-hd-btns button{width:20px;height:20px;border-radius:3px;color:#333;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .12s}
+.pnl-hd-btns button:hover{background:#1a1a2e;color:#aaa}
 
-/* Resize handle */
-.resizer{background:transparent;flex-shrink:0;z-index:10}
-.resizer.v{width:3px;cursor:col-resize}
-.resizer.v:hover,.resizer.v.drag{background:#7c3aed}
-.resizer.h{height:3px;cursor:row-resize;width:100%}
-.resizer.h:hover,.resizer.h.drag{background:#7c3aed}
+/* ── FILE TREE ── */
+#ftree{flex:1;overflow-y:auto;padding:2px 0}
+.no-folder{padding:16px 10px}
+.no-folder p{color:#333;font-size:12px;margin-bottom:10px}
+.no-folder button{width:100%;padding:6px;border-radius:5px;font-size:12px;cursor:pointer;margin-bottom:5px;transition:all .12s}
+.no-folder button.primary{background:#7c3aed;color:#fff;border:none}
+.no-folder button.primary:hover{background:#6d28d9}
+.no-folder button.ghost{background:#1a1a2e;color:#888;border:1px solid #2a2a3e}
+.no-folder button.ghost:hover{border-color:#7c3aed;color:#a78bfa}
+.ti{display:flex;align-items:center;gap:2px;padding:2px 4px;cursor:pointer;border-radius:4px;user-select:none;min-height:22px}
+.ti:hover{background:#141420}
+.ti.on{background:#1a0d36}
+.ti-ch{width:14px;font-size:9px;color:#333;flex-shrink:0;transition:transform .1s;text-align:center}
+.ti-ch.o{transform:rotate(90deg)}
+.ti-ic{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.ti-lb{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#bbb}
+.ti.on .ti-lb{color:#e0e0e8}
+.ti-dot{width:5px;height:5px;border-radius:50%;background:#7c3aed;flex-shrink:0}
 
-/* Editor area */
-#editorArea{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+/* ── RESIZER ── */
+.rz{background:transparent;flex-shrink:0;z-index:10;transition:background .1s}
+.rz.v{width:3px;cursor:col-resize}
+.rz.h{height:3px;cursor:row-resize;width:100%}
+.rz:hover,.rz.drag{background:#7c3aed}
 
-/* Tabs */
-#tabsBar{height:36px;background:#0d0d0f;display:flex;align-items:stretch;border-bottom:1px solid #222230;flex-shrink:0;overflow:hidden}
-#tabsList{display:flex;flex:1;overflow-x:auto;overflow-y:hidden}
-#tabsList::-webkit-scrollbar{height:0}
-.tab{display:flex;align-items:center;gap:5px;padding:0 12px;border-right:1px solid #1a1a28;cursor:pointer;white-space:nowrap;color:#666;font-size:12px;min-width:100px;max-width:180px;flex-shrink:0;position:relative;transition:background .1s}
-.tab:hover{background:#111118;color:#aaa}
-.tab.active{background:#1e1e2e;color:#e0e0e8;border-top:1px solid #7c3aed}
-.tab-icon{font-size:12px}
-.tab-name{flex:1;overflow:hidden;text-overflow:ellipsis}
-.tab-close{width:16px;height:16px;border-radius:2px;display:flex;align-items:center;justify-content:center;opacity:0;font-size:11px;transition:all .1s}
-.tab:hover .tab-close{opacity:.5}
-.tab-close:hover{opacity:1!important;background:#333;color:#ff6b6b}
-.tab.dirty .tab-name::after{content:'●';font-size:8px;color:#7c3aed;margin-left:4px;vertical-align:middle}
+/* ── EDITOR AREA ── */
+#edarea{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;min-height:0}
 
-/* Editor container */
-#editorWrap{flex:1;display:flex;overflow:hidden;position:relative}
-#welcome{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0d0d0f;z-index:1}
-.wl-logo{display:flex;align-items:center;gap:10px;font-size:28px;font-weight:700;color:#a78bfa;margin-bottom:8px}
-.wl-sub{color:#444;margin-bottom:32px;font-size:14px}
-.wl-actions{display:flex;gap:10px;margin-bottom:40px}
-.wl-btn{padding:9px 20px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .15s}
-.wl-btn.primary{background:#7c3aed;color:#fff;border:none}
-.wl-btn.primary:hover{background:#6d28d9}
-.wl-btn.secondary{background:#1e1e2e;color:#ccc;border:1px solid #333}
-.wl-btn.secondary:hover{border-color:#7c3aed;color:#a78bfa}
-.wl-tips{color:#333;font-size:12px;display:flex;flex-direction:column;gap:4px;text-align:center}
-.wl-tip span{color:#555}
-#monacoEl{position:absolute;inset:0}
+/* ── TABS ── */
+#tabsbar{height:35px;background:#080810;display:flex;align-items:stretch;border-bottom:1px solid #1e1e2e;flex-shrink:0;overflow:hidden}
+#tablist{display:flex;flex:1;overflow-x:auto;overflow-y:hidden}
+#tablist::-webkit-scrollbar{height:0}
+.tab{display:flex;align-items:center;gap:5px;padding:0 10px;border-right:1px solid #141420;cursor:pointer;white-space:nowrap;color:#555;font-size:12px;min-width:90px;max-width:170px;flex-shrink:0;transition:all .1s;position:relative}
+.tab:hover{background:#0f0f1a;color:#999}
+.tab.on{background:#0d0d0f;color:#e0e0e8;border-top:1px solid #7c3aed}
+.tab-ic{font-size:12px}
+.tab-nm{flex:1;overflow:hidden;text-overflow:ellipsis}
+.tab-x{width:15px;height:15px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:11px;opacity:0;transition:opacity .1s}
+.tab:hover .tab-x,.tab.on .tab-x{opacity:.5}
+.tab-x:hover{opacity:1!important;background:#2a1a1a;color:#f87171}
+.tab.dirty::after{content:'●';font-size:7px;color:#7c3aed;position:absolute;top:4px;right:4px}
 
-/* AI Panel */
-#aiPanel{width:360px;display:flex;flex-direction:column;background:#0a0a12;border-left:1px solid #222230;flex-shrink:0}
-#aiPanel.collapsed{width:0;overflow:hidden}
-.ai-head{padding:8px 10px;border-bottom:1px solid #1a1a28;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.ai-head-title{display:flex;align-items:center;gap:6px;font-weight:600;color:#a78bfa;font-size:13px}
-.ai-head-btns{display:flex;gap:4px}
-.ai-head-btns button{width:22px;height:22px;border-radius:3px;color:#555;transition:all .15s}
-.ai-head-btns button:hover{background:#1e1e2e;color:#aaa}
-.ai-model-bar{padding:6px 10px;border-bottom:1px solid #1a1a28;flex-shrink:0}
-.ai-model-bar select{width:100%;padding:4px 6px;background:#1a1a28;border:1px solid #333;border-radius:4px;color:#ccc;font-size:12px}
-.ai-quick-btns{display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px;border-bottom:1px solid #1a1a28;flex-shrink:0}
-.ai-q-btn{padding:3px 8px;border-radius:3px;background:#1a1a28;border:1px solid #2a2a3a;color:#888;font-size:11px;transition:all .15s}
-.ai-q-btn:hover{border-color:#7c3aed;color:#a78bfa}
-#aiMessages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:0}
-.ai-msg{max-width:92%;word-break:break-word;font-size:13px;line-height:1.55}
-.ai-msg.user{align-self:flex-end;background:#2a1a4e;color:#e0e0e8;padding:7px 10px;border-radius:10px 10px 2px 10px}
-.ai-msg.assistant{align-self:flex-start;background:#111118;border:1px solid #222230;color:#e0e0e8;padding:8px 10px;border-radius:2px 10px 10px 10px}
-.ai-msg.assistant pre{background:#0a0a12;border:1px solid #1a1a28;border-radius:4px;padding:8px;margin:6px 0;overflow-x:auto;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;white-space:pre}
-.ai-msg.assistant code{background:#1a1a28;padding:1px 4px;border-radius:3px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px}
-.ai-msg.system{align-self:center;color:#444;font-size:11px;font-style:italic}
-.ai-typing{align-self:flex-start;padding:8px 12px;background:#111118;border:1px solid #222230;border-radius:2px 10px 10px 10px;color:#555;font-size:13px}
-.dots span{display:inline-block;animation:blink 1.2s infinite;margin:0 1px}
-.dots span:nth-child(2){animation-delay:.2s}
-.dots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-.ai-insert-btn{margin-top:4px;padding:2px 8px;border-radius:3px;background:#1a1a28;border:1px solid #2a2a3a;color:#777;font-size:11px;cursor:pointer;transition:all .15s}
-.ai-insert-btn:hover{border-color:#7c3aed;color:#a78bfa}
-.ai-input-area{padding:8px;border-top:1px solid #1a1a28;flex-shrink:0}
-.ai-input-box{background:#111118;border:1px solid #2a2a3a;border-radius:6px;overflow:hidden;transition:border-color .15s}
-.ai-input-box:focus-within{border-color:#7c3aed}
-#aiInput{width:100%;padding:8px 10px;background:transparent;color:#e0e0e8;resize:none;font-size:13px;line-height:1.5;min-height:52px;max-height:160px}
-.ai-input-footer{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-top:1px solid #1a1a28}
-.ai-ctx-label{font-size:11px;color:#444;display:flex;align-items:center;gap:4px}
-.ai-send{padding:4px 12px;border-radius:4px;background:#7c3aed;color:#fff;font-size:12px;font-weight:600;transition:background .15s}
+/* ── EDITOR WRAPPER ── */
+#edwrap{flex:1;display:flex;overflow:hidden;position:relative;min-height:0}
+#welcome{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0d0d0f;z-index:2;overflow-y:auto}
+.wl-logo{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:700;color:#a78bfa;margin-bottom:6px}
+.wl-sub{color:#333;margin-bottom:28px;font-size:13px;text-align:center}
+.wl-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px}
+.wl-btn{padding:8px 18px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .12s}
+.wl-btn.p{background:#7c3aed;color:#fff;border:none}.wl-btn.p:hover{background:#6d28d9}
+.wl-btn.s{background:#111118;color:#aaa;border:1px solid #2a2a3e}.wl-btn.s:hover{border-color:#7c3aed;color:#a78bfa}
+.wl-keys{color:#2a2a3e;font-size:11px;text-align:center;line-height:2}
+.wl-keys span{color:#3a3a50}
+#monaco-el{position:absolute;inset:0}
+
+/* ── AI PANEL ── */
+#aipanel{width:360px;display:flex;flex-direction:column;background:#080810;border-left:1px solid #1e1e2e;flex-shrink:0;min-width:0;overflow:hidden;transition:width .15s}
+#aipanel.off{width:0}
+.ai-hd{padding:8px 10px;border-bottom:1px solid #141420;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ai-hd-l{display:flex;align-items:center;gap:6px;font-weight:700;color:#a78bfa;font-size:13px}
+.ai-hd-r{display:flex;gap:3px}
+.ai-hd-r button{width:22px;height:22px;border-radius:3px;color:#333;transition:all .12s;display:flex;align-items:center;justify-content:center}
+.ai-hd-r button:hover{background:#1a1a2e;color:#aaa}
+.ai-model-bar{padding:6px 8px;border-bottom:1px solid #141420;flex-shrink:0;display:flex;gap:6px;align-items:center}
+.ai-model-bar select{flex:1;padding:4px 6px;background:#111118;border:1px solid #2a2a3e;border-radius:4px;color:#ccc;font-size:12px}
+.ai-model-bar select:focus{border-color:#7c3aed;outline:none}
+.ai-setup-btn{padding:3px 8px;border-radius:4px;background:#1a1a2e;border:1px solid #2a2a3e;color:#888;font-size:11px;transition:all .12s;white-space:nowrap}
+.ai-setup-btn:hover{border-color:#7c3aed;color:#a78bfa}
+.ai-qbtns{display:flex;flex-wrap:wrap;gap:3px;padding:6px 8px;border-bottom:1px solid #141420;flex-shrink:0}
+.ai-qb{padding:3px 8px;border-radius:3px;background:#111118;border:1px solid #1e1e2e;color:#666;font-size:11px;transition:all .12s}
+.ai-qb:hover{border-color:#7c3aed;color:#a78bfa}
+#aimsg{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.msg{max-width:94%;word-break:break-word;font-size:13px;line-height:1.55}
+.msg.u{align-self:flex-end;background:#1a0d36;color:#e0e0e8;padding:7px 10px;border-radius:10px 10px 2px 10px}
+.msg.a{align-self:flex-start;background:#0f0f1a;border:1px solid #1e1e2e;color:#e0e0e8;padding:8px 10px;border-radius:2px 10px 10px 10px}
+.msg.a pre{background:#080810;border:1px solid #1e1e2e;border-radius:4px;padding:8px;margin:6px 0;overflow-x:auto;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;white-space:pre}
+.msg.a code{background:#141420;padding:1px 4px;border-radius:3px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px}
+.msg.a p{margin-bottom:5px}.msg.a p:last-child{margin-bottom:0}
+.msg.a ul,.msg.a ol{padding-left:16px;margin:4px 0}
+.msg.a li{margin-bottom:2px}
+.msg.sys{align-self:center;color:#333;font-size:11px;font-style:italic}
+.typing{align-self:flex-start;padding:8px 12px;background:#0f0f1a;border:1px solid #1e1e2e;border-radius:2px 10px 10px 10px;color:#444;font-size:13px}
+.dots span{display:inline-block;animation:bk 1.2s infinite;margin:0 1px}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bk{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.msg-actions{display:flex;gap:4px;margin-top:5px}
+.msg-btn{padding:2px 7px;border-radius:3px;background:#111118;border:1px solid #1e1e2e;color:#555;font-size:11px;cursor:pointer;transition:all .12s}
+.msg-btn:hover{border-color:#7c3aed;color:#a78bfa}
+.ai-inp-area{padding:7px;border-top:1px solid #141420;flex-shrink:0}
+.ai-inp-box{background:#0f0f1a;border:1px solid #1e1e2e;border-radius:6px;overflow:hidden;transition:border-color .12s}
+.ai-inp-box:focus-within{border-color:#7c3aed}
+#aiinput{width:100%;padding:8px 10px;background:transparent;color:#e0e0e8;resize:none;font-size:13px;line-height:1.5;min-height:52px;max-height:150px}
+.ai-inp-ft{display:flex;justify-content:space-between;align-items:center;padding:3px 7px;border-top:1px solid #141420}
+.ai-ctx{font-size:11px;color:#333;display:flex;align-items:center;gap:4px;cursor:pointer}
+.ai-ctx input{cursor:pointer}
+.ai-send{padding:4px 12px;border-radius:4px;background:#7c3aed;color:#fff;font-size:12px;font-weight:600;transition:background .12s}
 .ai-send:hover{background:#6d28d9}
+.ai-send:disabled{background:#2a1a4e;color:#555;cursor:not-allowed}
 
-/* Bottom panel */
-#bottomPanel{background:#0a0a12;border-top:1px solid #222230;display:flex;flex-direction:column;flex-shrink:0}
-#bottomPanel.collapsed{height:0!important;overflow:hidden}
-.bp-tabs{display:flex;align-items:center;height:28px;border-bottom:1px solid #1a1a28;background:#111118;flex-shrink:0}
-.bp-tab{padding:0 14px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.06em;color:#444;cursor:pointer;border-bottom:2px solid transparent;text-transform:uppercase;transition:all .15s}
-.bp-tab:hover{color:#888}
-.bp-tab.active{color:#e0e0e8;border-bottom-color:#7c3aed}
-.bp-tab-actions{margin-left:auto;display:flex;gap:2px;padding-right:6px}
-.bp-tab-actions button{width:22px;height:22px;border-radius:3px;color:#444;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.bp-tab-actions button:hover{background:#1e1e2e;color:#aaa}
-.bp-content{flex:1;overflow:hidden}
-.bp-panel{display:none;height:100%;flex-direction:column}
-.bp-panel.active{display:flex}
+/* ── OLLAMA SETUP MODAL ── */
+#ollamaModal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center}
+.om-bg{position:absolute;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px)}
+.om-box{position:relative;z-index:1;width:min(760px,95vw);max-height:90vh;overflow-y:auto;background:#0d0d14;border:1px solid #2a2a3e;border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.8)}
+.om-header{padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.om-title{font-size:20px;font-weight:700;color:#e0e0e8;display:flex;align-items:center;gap:10px}
+.om-close{width:28px;height:28px;border-radius:6px;color:#555;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .12s;flex-shrink:0}
+.om-close:hover{background:#1a1a2e;color:#e0e0e8}
+.om-body{padding:20px 28px 28px}
+.om-sub{color:#555;font-size:13px;margin-bottom:20px;line-height:1.6}
 
-/* Terminal */
-.term-tabs{display:flex;align-items:center;height:24px;background:#0d0d0f;border-bottom:1px solid #1a1a28;flex-shrink:0;overflow-x:auto}
-.term-tabs::-webkit-scrollbar{height:0}
-.term-tab{padding:0 10px;height:100%;display:flex;align-items:center;gap:5px;cursor:pointer;color:#444;font-size:11px;white-space:nowrap;border-right:1px solid #1a1a28;transition:all .15s}
-.term-tab:hover{background:#111118;color:#888}
-.term-tab.active{background:#1a1a28;color:#ccc}
-.term-tab-close{font-size:10px;opacity:.5;transition:opacity .1s}
-.term-tab:hover .term-tab-close{opacity:1}
-#termContainer{flex:1;overflow:hidden;background:#0d0d0f;padding:4px}
+/* RAM status */
+.ram-card{background:#080810;border:1px solid #1e1e2e;border-radius:8px;padding:14px;margin-bottom:20px}
+.ram-title{font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.ram-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.ram-label{font-size:12px;color:#666;width:80px}
+.ram-bar-wrap{flex:1;height:8px;background:#1a1a2e;border-radius:4px;overflow:hidden}
+.ram-bar{height:100%;border-radius:4px;transition:width .5s ease}
+.ram-bar.used{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.ram-bar.avail{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.ram-val{font-size:12px;color:#888;width:60px;text-align:right}
+.ram-rec{margin-top:12px;padding:10px;background:#0a0a14;border:1px solid #2a2a3e;border-radius:6px;display:flex;align-items:center;gap:8px}
+.ram-rec-icon{font-size:20px}
+.ram-rec-text{font-size:12px;color:#aaa;line-height:1.5}
+.ram-rec-text strong{color:#a78bfa}
 
-/* Problems / Output */
+/* Model cards */
+.models-title{font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.model-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:600px){.model-cards{grid-template-columns:1fr}}
+.mc{background:#080810;border:1px solid #1e1e2e;border-radius:8px;padding:14px;cursor:pointer;transition:all .15s;position:relative}
+.mc:hover{border-color:#7c3aed;background:#0d0d1e}
+.mc.recommended{border-color:#7c3aed;background:#0d0d1e}
+.mc.recommended::before{content:'⭐ Recommended';position:absolute;top:-1px;right:10px;background:#7c3aed;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:0 0 5px 5px}
+.mc-name{font-weight:700;color:#e0e0e8;font-size:14px;margin-bottom:4px}
+.mc-model{font-family:'Cascadia Code',Consolas,monospace;font-size:11px;color:#7c3aed;margin-bottom:8px}
+.mc-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.badge{padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600}
+.badge.green{background:#052e16;color:#4ade80;border:1px solid #166534}
+.badge.blue{background:#0c1a3e;color:#60a5fa;border:1px solid #1d4ed8}
+.badge.purple{background:#1e0938;color:#c084fc;border:1px solid #6d28d9}
+.badge.orange{background:#2c1505;color:#fb923c;border:1px solid #c2410c}
+.mc-desc{font-size:11px;color:#555;line-height:1.5;margin-bottom:10px}
+.mc-ram{font-size:11px;color:#666;margin-bottom:10px}
+.mc-ram span{color:#a78bfa;font-weight:600}
+.mc-dl{width:100%;padding:7px;border-radius:5px;background:#7c3aed;color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:background .12s}
+.mc-dl:hover{background:#6d28d9}
+.mc-dl.installed{background:#052e16;color:#4ade80;border:1px solid #166534;cursor:default}
+.mc-dl.loading{background:#1e0938;color:#a78bfa;cursor:not-allowed}
+
+/* Install steps */
+.install-steps{margin-bottom:20px}
+.step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.step-num{width:24px;height:24px;border-radius:50%;background:#7c3aed;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-body{flex:1}
+.step-title{font-weight:600;color:#e0e0e8;font-size:13px;margin-bottom:4px}
+.step-desc{font-size:12px;color:#555;line-height:1.5}
+.step-code{font-family:'Cascadia Code',Consolas,monospace;font-size:12px;background:#080810;border:1px solid #1e1e2e;border-radius:4px;padding:7px 10px;margin-top:6px;color:#a78bfa;display:flex;align-items:center;justify-content:space-between}
+.step-code-cp{padding:2px 7px;border-radius:3px;background:#1a1a2e;border:1px solid #2a2a3e;color:#888;font-size:10px;cursor:pointer;transition:all .12s;font-family:inherit}
+.step-code-cp:hover{border-color:#7c3aed;color:#a78bfa}
+.os-tabs{display:flex;gap:4px;margin-bottom:14px}
+.os-tab{padding:4px 12px;border-radius:5px;background:#111118;border:1px solid #1e1e2e;color:#555;font-size:12px;cursor:pointer;transition:all .12s}
+.os-tab.on{background:#1a0d36;border-color:#7c3aed;color:#a78bfa}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;background:#7c3aed;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:background .12s;text-decoration:none;border:none}
+.dl-btn:hover{background:#6d28d9}
+
+/* Connection test */
+.conn-test{background:#080810;border:1px solid #1e1e2e;border-radius:8px;padding:14px;margin-bottom:20px}
+.conn-row{display:flex;align-items:center;gap:10px}
+.conn-input{flex:1;padding:6px 10px;background:#111118;border:1px solid #2a2a3e;border-radius:5px;color:#e0e0e8;font-size:12px}
+.conn-input:focus{border-color:#7c3aed;outline:none}
+.conn-test-btn{padding:6px 14px;border-radius:5px;background:#1a1a2e;border:1px solid #2a2a3e;color:#aaa;font-size:12px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.conn-test-btn:hover{border-color:#7c3aed;color:#a78bfa}
+.conn-status{margin-top:8px;font-size:12px;display:flex;align-items:center;gap:6px}
+.conn-status.ok{color:#4ade80}.conn-status.err{color:#f87171}.conn-status.testing{color:#fbbf24}
+.om-footer{display:flex;justify-content:flex-end;gap:8px;padding-top:8px;border-top:1px solid #1e1e2e}
+.om-footer button{padding:7px 18px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .12s}
+.om-footer .cancel{background:#111118;border:1px solid #2a2a3e;color:#888}.om-footer .cancel:hover{border-color:#555;color:#ccc}
+.om-footer .done{background:#7c3aed;border:none;color:#fff;font-weight:600}.om-footer .done:hover{background:#6d28d9}
+
+/* ── BOTTOM PANEL ── */
+#botpanel{background:#080810;border-top:1px solid #1e1e2e;display:flex;flex-direction:column;flex-shrink:0;height:200px;min-height:0}
+#botpanel.off{height:0!important;overflow:hidden}
+.bp-tabs{display:flex;align-items:center;height:28px;background:#0a0a10;border-bottom:1px solid #141420;flex-shrink:0}
+.bp-tab{padding:0 14px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.06em;color:#333;cursor:pointer;border-bottom:2px solid transparent;text-transform:uppercase;transition:all .12s}
+.bp-tab:hover{color:#777}
+.bp-tab.on{color:#e0e0e8;border-bottom-color:#7c3aed}
+.bp-acts{margin-left:auto;display:flex;gap:2px;padding-right:6px}
+.bp-acts button{width:22px;height:22px;border-radius:3px;color:#333;display:flex;align-items:center;justify-content:center;transition:all .12s;font-size:13px}
+.bp-acts button:hover{background:#1a1a2e;color:#aaa}
+.bp-content{flex:1;overflow:hidden;min-height:0}
+.bpp{display:none;height:100%;flex-direction:column}
+.bpp.on{display:flex}
+.term-tabs-row{display:flex;align-items:center;height:24px;background:#0d0d0f;border-bottom:1px solid #141420;flex-shrink:0;overflow-x:auto}
+.term-tabs-row::-webkit-scrollbar{height:0}
+.tterm-tab{padding:0 10px;height:100%;display:flex;align-items:center;gap:5px;cursor:pointer;color:#333;font-size:11px;border-right:1px solid #141420;transition:all .12s;white-space:nowrap}
+.tterm-tab:hover{background:#111118;color:#777}
+.tterm-tab.on{background:#141420;color:#ccc}
+.tterm-tab-x{font-size:10px;opacity:.5}
+.tterm-tab:hover .tterm-tab-x{opacity:1}
+#termwrap{flex:1;overflow:hidden;background:#080810;padding:3px}
 .log-area{flex:1;overflow-y:auto;padding:6px 10px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;line-height:1.6}
-.log-line{padding:1px 0}
-.log-line.err{color:#ff6b6b}
-.log-line.warn{color:#fbbf24}
-.log-line.info{color:#60a5fa}
-.log-line.ok{color:#34d399}
-.problem-item{padding:5px 8px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;border-radius:3px;transition:background .1s}
-.problem-item:hover{background:#111118}
-.problem-icon{font-size:13px;flex-shrink:0;margin-top:1px}
-.problem-text{color:#e0e0e8;font-size:12px}
-.problem-loc{color:#555;font-size:11px}
-.empty-state{padding:24px;text-align:center;color:#333;font-size:12px}
+.ll{padding:1px 0}.ll.e{color:#f87171}.ll.w{color:#fbbf24}.ll.i{color:#60a5fa}.ll.s{color:#4ade80}
+.prob-item{padding:5px 8px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;border-radius:3px;transition:background .1s}
+.prob-item:hover{background:#111118}
+.prob-ic{font-size:13px;flex-shrink:0}
+.prob-txt{color:#e0e0e8;font-size:12px}.prob-loc{color:#444;font-size:11px}
+.empty{padding:24px;text-align:center;color:#222;font-size:12px}
 
-/* Status bar */
-.sb-left,.sb-right{display:flex;align-items:center}
-.sb-item{padding:0 8px;height:22px;display:flex;align-items:center;color:rgba(255,255,255,.75);font-size:11px;cursor:pointer;white-space:nowrap;transition:background .1s}
-.sb-item:hover{background:rgba(255,255,255,.1)}
-.sb-branch{font-weight:600}
-.sb-ai{background:rgba(255,255,255,.15);border-radius:3px}
+/* ── STATUS BAR ── */
+#sb{height:22px;background:#5b21b6;display:flex;align-items:center;justify-content:space-between;padding:0 4px;flex-shrink:0}
+.sbl,.sbr{display:flex;align-items:center}
+.sbi{padding:0 7px;height:22px;display:flex;align-items:center;color:rgba(255,255,255,.75);font-size:11px;cursor:pointer;white-space:nowrap;transition:background .1s}
+.sbi:hover{background:rgba(255,255,255,.12)}
+.sbi.branch{font-weight:600}
 
-/* Command palette */
-#cmdPalette{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding-top:80px}
-#cmdPalette .cp-bg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
-#cmdPalette .cp-box{position:relative;z-index:1;width:min(640px,92vw);background:#111118;border:1px solid #333;border-radius:8px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.8)}
-#cpInput{width:100%;padding:12px 16px;font-size:15px;background:transparent;color:#e0e0e8;border-bottom:1px solid #222230}
-#cpResults{max-height:380px;overflow-y:auto}
-.cp-group{padding:4px 14px 2px;font-size:10px;color:#444;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
-.cp-item{padding:7px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .1s}
-.cp-item:hover,.cp-item.focused{background:#1e1e2e}
-.cp-item-l{display:flex;align-items:center;gap:10px;color:#ccc;font-size:13px}
-.cp-item-icon{width:16px;text-align:center;color:#555;font-size:13px}
-.cp-item-key{font-size:11px;color:#444;background:#0a0a12;padding:1px 6px;border-radius:3px;font-family:monospace}
+/* ── COMMAND PALETTE ── */
+#cp{position:fixed;inset:0;z-index:8000;display:flex;align-items:flex-start;justify-content:center;padding-top:70px}
+#cp .cp-bg{position:absolute;inset:0;background:rgba(0,0,0,.65)}
+#cp .cp-box{position:relative;z-index:1;width:min(640px,94vw);background:#0d0d14;border:1px solid #2a2a3e;border-radius:8px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.9)}
+#cpinput{width:100%;padding:12px 16px;font-size:15px;background:transparent;color:#e0e0e8;border-bottom:1px solid #1e1e2e}
+#cpres{max-height:380px;overflow-y:auto}
+.cp-grp{padding:4px 14px 2px;font-size:10px;color:#333;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.cp-it{padding:7px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .1s}
+.cp-it:hover,.cp-it.sel{background:#141420}
+.cp-it-l{display:flex;align-items:center;gap:9px;color:#ccc;font-size:13px}
+.cp-it-ic{width:15px;text-align:center;color:#444;font-size:12px}
+.cp-it-key{font-size:11px;color:#333;background:#080810;padding:1px 5px;border-radius:3px;font-family:monospace}
 
-/* Context menu */
-#ctxMenu{position:fixed;z-index:9999;background:#111118;border:1px solid #2a2a3a;border-radius:6px;min-width:160px;padding:3px;box-shadow:0 8px 24px rgba(0,0,0,.7)}
-.ctx-item{padding:5px 12px;border-radius:3px;cursor:pointer;color:#ccc;font-size:13px;transition:background .1s}
-.ctx-item:hover{background:#1e1e2e}
+/* ── CONTEXT MENU ── */
+#ctx{position:fixed;z-index:9000;background:#0d0d14;border:1px solid #2a2a3e;border-radius:6px;min-width:160px;padding:3px;box-shadow:0 8px 28px rgba(0,0,0,.8)}
+.ctx-it{padding:5px 12px;border-radius:3px;cursor:pointer;color:#ccc;font-size:13px;transition:background .1s}
+.ctx-it:hover{background:#141420}
 .ctx-sep{height:1px;background:#1a1a28;margin:3px 0}
 
-/* Settings modal */
-#settingsModal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center}
-.sm-bg{position:absolute;inset:0;background:rgba(0,0,0,.7)}
-.sm-box{position:relative;z-index:1;width:min(800px,95vw);height:min(560px,90vh);background:#111118;border:1px solid #222230;border-radius:10px;display:flex;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.8)}
-.sm-nav{width:180px;background:#0a0a12;border-right:1px solid #1a1a28;padding:16px 8px;flex-shrink:0}
+/* ── SETTINGS MODAL ── */
+#settModal{position:fixed;inset:0;z-index:8500;display:flex;align-items:center;justify-content:center}
+.sm-bg{position:absolute;inset:0;background:rgba(0,0,0,.75)}
+.sm-box{position:relative;z-index:1;width:min(820px,96vw);height:min(580px,92vh);background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;display:flex;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.9)}
+.sm-nav{width:185px;background:#080810;border-right:1px solid #141420;padding:16px 8px;flex-shrink:0}
 .sm-nav h3{color:#e0e0e8;font-size:15px;margin-bottom:14px;padding:0 6px}
-.sm-nav-item{padding:6px 10px;border-radius:4px;cursor:pointer;color:#666;font-size:13px;transition:all .15s}
-.sm-nav-item:hover{background:#111118;color:#aaa}
-.sm-nav-item.active{background:#1e1e2e;color:#a78bfa}
+.sm-ni{padding:6px 10px;border-radius:4px;cursor:pointer;color:#444;font-size:13px;transition:all .12s}
+.sm-ni:hover{background:#111118;color:#aaa}
+.sm-ni.on{background:#1a0d36;color:#a78bfa}
 .sm-main{flex:1;padding:20px;overflow-y:auto}
-.sm-section{margin-bottom:20px}
-.sm-section-title{font-weight:600;color:#e0e0e8;font-size:13px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #1a1a28}
-.sm-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #0d0d0f}
-.sm-label{color:#aaa;font-size:13px}
-.sm-desc{color:#444;font-size:11px;margin-top:2px}
-.sm-ctrl input[type=number],.sm-ctrl select{padding:3px 6px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#ccc;width:90px}
-.sm-ctrl input[type=text],.sm-ctrl input[type=password]{padding:4px 8px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#ccc;width:200px}
-.sm-toggle{width:34px;height:18px;border-radius:9px;background:#2a2a3a;position:relative;cursor:pointer;transition:background .15s;flex-shrink:0}
-.sm-toggle.on{background:#7c3aed}
-.sm-toggle::after{content:'';position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .15s}
-.sm-toggle.on::after{left:19px}
+.sm-sec{margin-bottom:22px}
+.sm-sec-t{font-weight:700;color:#e0e0e8;font-size:13px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #141420}
+.sm-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #080810}
+.sm-lbl{color:#888;font-size:13px}.sm-dsc{color:#333;font-size:11px;margin-top:2px}
+.sm-ctrl input[type=number],.sm-ctrl select{padding:3px 6px;background:#111118;border:1px solid #1e1e2e;border-radius:4px;color:#ccc;width:90px}
+.sm-ctrl input[type=text],.sm-ctrl input[type=password]{padding:4px 8px;background:#111118;border:1px solid #1e1e2e;border-radius:4px;color:#ccc;width:200px}
+.sm-tgl{width:34px;height:18px;border-radius:9px;background:#1e1e2e;position:relative;cursor:pointer;transition:background .15s;flex-shrink:0}
+.sm-tgl.on{background:#7c3aed}
+.sm-tgl::after{content:'';position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .15s}
+.sm-tgl.on::after{left:19px}
 
-/* Toast */
-#toast{position:fixed;bottom:28px;right:12px;display:flex;flex-direction:column;gap:6px;z-index:99999}
-.toast-item{padding:8px 14px;border-radius:5px;background:#111118;border:1px solid #222230;color:#e0e0e8;font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(0,0,0,.5);animation:toastin .2s ease}
-.toast-item.ok{border-color:#22c55e}.toast-item.err{border-color:#ef4444}.toast-item.warn{border-color:#f59e0b}
-@keyframes toastin{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:28px;right:12px;display:flex;flex-direction:column;gap:5px;z-index:99999}
+.toast-it{padding:8px 14px;border-radius:5px;background:#0d0d14;border:1px solid #1e1e2e;color:#e0e0e8;font-size:13px;display:flex;align-items:center;gap:7px;box-shadow:0 4px 18px rgba(0,0,0,.6);animation:tin .18s ease}
+.toast-it.ok{border-color:#16a34a}.toast-it.err{border-color:#dc2626}.toast-it.warn{border-color:#d97706}
+@keyframes tin{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
 
-/* Inline rename input */
-.rename-input{background:#1a1a28;border:1px solid #7c3aed;color:#e0e0e8;border-radius:2px;padding:1px 4px;font-size:13px;width:140px}
-
-/* Search panel */
-.search-box{padding:8px}
-.search-box input{width:100%;padding:5px 8px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#e0e0e8;font-size:12px;margin-bottom:4px}
-.search-box input:focus{border-color:#7c3aed}
-.search-opts{display:flex;gap:6px;margin-bottom:4px}
-.search-opts label{font-size:11px;color:#666;display:flex;align-items:center;gap:3px;cursor:pointer}
-.search-btn{padding:4px 10px;border-radius:4px;background:#7c3aed;color:#fff;font-size:12px;transition:background .15s}
-.search-btn:hover{background:#6d28d9}
-#searchResults{flex:1;overflow-y:auto;padding:4px}
+/* ── SEARCH PANEL ── */
+.srch-box{padding:7px}
+.srch-box input{width:100%;padding:5px 8px;background:#111118;border:1px solid #1e1e2e;border-radius:4px;color:#e0e0e8;font-size:12px;margin-bottom:4px}
+.srch-box input:focus{border-color:#7c3aed;outline:none}
+.srch-opts{display:flex;gap:8px;margin-bottom:5px}
+.srch-opts label{font-size:11px;color:#444;display:flex;align-items:center;gap:3px;cursor:pointer}
+.srch-btn{padding:4px 10px;border-radius:4px;background:#7c3aed;color:#fff;border:none;font-size:12px;cursor:pointer;transition:background .12s}
+.srch-btn:hover{background:#6d28d9}
 .sr-file{margin-bottom:2px}
-.sr-fname{padding:3px 8px;color:#e0e0e8;font-size:12px;font-weight:600}
-.sr-match{padding:2px 8px 2px 20px;color:#888;font-size:11px;cursor:pointer;border-radius:2px;transition:background .1s}
-.sr-match:hover{background:#1a1a28}
-.sr-match mark{background:rgba(124,58,237,.35);color:#c4b5fd;border-radius:2px}
+.sr-fn{padding:3px 8px;color:#e0e0e8;font-size:12px;font-weight:600}
+.sr-fn span{color:#333;font-size:11px;font-weight:400;margin-left:4px}
+.sr-m{padding:2px 8px 2px 20px;color:#666;font-size:11px;cursor:pointer;border-radius:2px;transition:background .1s}
+.sr-m:hover{background:#111118}
+.sr-m mark{background:rgba(124,58,237,.35);color:#c4b5fd;border-radius:2px;font-style:normal}
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- TITLEBAR -->
-  <div id="titlebar">
-    <div class="tb-logo">
-      <svg width="18" height="18" viewBox="0 0 64 64"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity=".8"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/></svg>
-      Apex IDE
+
+<!-- TITLEBAR -->
+<div id="titlebar">
+  <div class="tb-logo">
+    <svg width="18" height="18" viewBox="0 0 64 64"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity=".85"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/></svg>
+    Apex IDE
+  </div>
+  <div class="tb-menu">
+    <div class="tb-mi" onclick="menuFile()">File</div>
+    <div class="tb-mi" onclick="menuEdit()">Edit</div>
+    <div class="tb-mi" onclick="menuView()">View</div>
+    <div class="tb-mi" onclick="menuRun()">Run</div>
+    <div class="tb-mi" onclick="openSettings()">Settings</div>
+    <div class="tb-mi" onclick="menuHelp()">Help</div>
+  </div>
+  <div class="tb-breadcrumb" id="breadcrumb"></div>
+  <div class="tb-sep"></div>
+  <div class="tb-ai-status disconnected" id="aiStatus" onclick="showOllamaSetup()" title="Click to setup Ollama AI">
+    <span class="tb-ai-dot"></span>
+    <span id="aiStatusTxt">Ollama: Not connected</span>
+  </div>
+  <button class="tb-btn" id="btnInstall" style="display:none" onclick="installPWA()">⬇ Install</button>
+  <button class="tb-btn" onclick="toggleAI()">✦ AI</button>
+  <button class="tb-btn" onclick="openSettings()">⚙</button>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- Activity Bar -->
+  <div id="actbar">
+    <div class="ab on" id="ab-explorer" onclick="switchPanel('explorer')" title="Explorer (Ctrl+Shift+E)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
     </div>
-    <div class="tb-menu">
-      <div class="tb-menu-item" onclick="menuFile()">File</div>
-      <div class="tb-menu-item" onclick="menuEdit()">Edit</div>
-      <div class="tb-menu-item" onclick="menuView()">View</div>
-      <div class="tb-menu-item" onclick="menuRun()">Run</div>
-      <div class="tb-menu-item" onclick="openSettings()">Settings</div>
+    <div class="ab" id="ab-search" onclick="switchPanel('search')" title="Search (Ctrl+Shift+F)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     </div>
-    <div class="tb-breadcrumb" id="breadcrumb"></div>
-    <div class="tb-right">
-      <button class="tb-btn" id="btnInstall" style="display:none" onclick="installPWA()">⬇ Install App</button>
-      <button class="tb-btn" onclick="toggleAI()">✦ AI</button>
-      <button class="tb-btn" onclick="openSettings()">⚙</button>
+    <div class="ab" id="ab-git" onclick="switchPanel('git')" title="Source Control">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 15V9a4 4 0 00-4-4H9"/><line x1="6" y1="9" x2="6" y2="15"/></svg>
+    </div>
+    <div class="ab-gap"></div>
+    <div class="ab" onclick="showOllamaSetup()" title="AI Setup">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M8 11a6 6 0 1012 0"/><path d="M8 11a6 6 0 00-2 4.5c0 2.5 2 4.5 4 4.5"/></svg>
+    </div>
+    <div class="ab" onclick="openSettings()" title="Settings">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div id="main">
-    <!-- Activity Bar -->
-    <div id="activitybar">
-      <button class="ab-btn active" id="ab-explorer" onclick="switchPanel('explorer')" title="Explorer (Ctrl+Shift+E)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-      </button>
-      <button class="ab-btn" id="ab-search" onclick="switchPanel('search')" title="Search (Ctrl+Shift+F)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      </button>
-      <button class="ab-btn" id="ab-git" onclick="switchPanel('git')" title="Source Control">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 15V9a4 4 0 00-4-4H9"/><line x1="6" y1="9" x2="6" y2="15"/></svg>
-      </button>
-      <div class="ab-sep"></div>
-      <div class="ab-bottom">
-        <button class="ab-btn" onclick="openSettings()" title="Settings">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div id="sidebar">
-      <!-- Explorer -->
-      <div class="panel active" id="panel-explorer">
-        <div class="panel-head">
-          <span>EXPLORER</span>
-          <div class="panel-head-btns">
-            <button onclick="newFile()" title="New File">+</button>
-            <button onclick="newFolder()" title="New Folder">📁</button>
-            <button onclick="openFolder()" title="Open Folder">📂</button>
-          </div>
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <!-- Explorer -->
+    <div class="pnl on" id="pnl-explorer">
+      <div class="pnl-hd">
+        <span>Explorer</span>
+        <div class="pnl-hd-btns">
+          <button onclick="newFile()" title="New File">+</button>
+          <button onclick="newFolder()" title="New Folder">📁</button>
+          <button onclick="openFolder()" title="Open Folder">📂</button>
         </div>
-        <div id="noFolderMsg" style="padding:16px 10px">
-          <div style="color:#444;font-size:12px;margin-bottom:10px">No folder opened</div>
-          <button onclick="openFolder()" style="width:100%;padding:6px;background:#1e1e2e;border:1px solid #333;border-radius:4px;color:#aaa;font-size:12px;cursor:pointer">Open Folder</button>
-          <button onclick="newProject()" style="width:100%;padding:6px;background:#7c3aed;border:none;border-radius:4px;color:#fff;font-size:12px;cursor:pointer;margin-top:6px">New Project</button>
-        </div>
-        <div id="fileTree" class="hidden"></div>
       </div>
-      <!-- Search -->
-      <div class="panel" id="panel-search">
-        <div class="panel-head"><span>SEARCH</span></div>
-        <div class="search-box">
-          <input type="text" id="searchQ" placeholder="Search in files..." onkeydown="if(event.key==='Enter')doSearch()"/>
-          <div class="search-opts">
-            <label><input type="checkbox" id="srCase"/> Match case</label>
-            <label><input type="checkbox" id="srRegex"/> Regex</label>
-          </div>
-          <button class="search-btn" onclick="doSearch()">Search</button>
-        </div>
-        <div id="searchResults" style="flex:1;overflow-y:auto;padding:4px"></div>
-      </div>
-      <!-- Git -->
-      <div class="panel" id="panel-git">
-        <div class="panel-head"><span>SOURCE CONTROL</span></div>
-        <div style="padding:8px;flex:1;overflow-y:auto">
-          <div style="font-size:11px;color:#444;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Changes</div>
-          <div id="gitChanges"><div class="empty-state">No changes</div></div>
-          <textarea id="gitMsg" placeholder="Commit message..." style="width:100%;height:54px;background:#1a1a28;border:1px solid #2a2a3a;border-radius:4px;color:#ccc;padding:6px;resize:none;margin-top:8px;font-size:12px"></textarea>
-          <div style="display:flex;gap:6px;margin-top:6px">
-            <button onclick="gitCommit()" style="flex:1;padding:5px;background:#1e1e2e;border:1px solid #333;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer">✓ Commit</button>
-            <button onclick="gitPush()" style="flex:1;padding:5px;background:#1e1e2e;border:1px solid #333;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer">↑ Push</button>
-          </div>
+      <div id="ftree">
+        <div class="no-folder">
+          <p>No folder opened</p>
+          <button class="primary" onclick="openFolder()">📂 Open Folder</button>
+          <button class="ghost" onclick="newProject()">✨ New Project</button>
         </div>
       </div>
     </div>
-
-    <div class="resizer v" id="sidebarResizer"></div>
-
-    <!-- Editor Area -->
-    <div id="editorArea">
-      <div id="tabsBar">
-        <div id="tabsList"></div>
-      </div>
-      <div id="editorWrap">
-        <div id="welcome">
-          <div class="wl-logo">
-            <svg width="36" height="36" viewBox="0 0 64 64"><polygon points="32,10 54,23 54,41 32,54 10,41 10,23" fill="none" stroke="#7c3aed" stroke-width="2"/><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity=".6"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/></svg>
-            Apex IDE
-          </div>
-          <div class="wl-sub">Full-featured web IDE · GLM-5.1 AI · All languages</div>
-          <div class="wl-actions">
-            <button class="wl-btn primary" onclick="openFolder()">Open Folder</button>
-            <button class="wl-btn secondary" onclick="newFile()">New File</button>
-            <button class="wl-btn secondary" onclick="newProject()">New Project</button>
-          </div>
-          <div class="wl-tips">
-            <div><span>Ctrl+P</span> — Quick Open &nbsp;|&nbsp; <span>Ctrl+Shift+P</span> — Command Palette</div>
-            <div><span>Ctrl+`</span> — Terminal &nbsp;|&nbsp; <span>Ctrl+Shift+A</span> — AI Panel</div>
-          </div>
+    <!-- Search -->
+    <div class="pnl" id="pnl-search">
+      <div class="pnl-hd"><span>Search</span></div>
+      <div class="srch-box">
+        <input type="text" id="searchQ" placeholder="Search in files..." onkeydown="if(event.key==='Enter')doSearch()"/>
+        <div class="srch-opts">
+          <label><input type="checkbox" id="srCase"/> Case</label>
+          <label><input type="checkbox" id="srRegex"/> Regex</label>
+          <label><input type="checkbox" id="srWord"/> Word</label>
         </div>
-        <div id="monacoEl" class="hidden"></div>
+        <button class="srch-btn" onclick="doSearch()">Search All Files</button>
       </div>
-
-      <div class="resizer h" id="bottomResizer"></div>
-
-      <!-- Bottom Panel -->
-      <div id="bottomPanel" style="height:200px">
-        <div class="bp-tabs">
-          <div class="bp-tab active" onclick="switchBP('terminal')">TERMINAL</div>
-          <div class="bp-tab" onclick="switchBP('problems')">PROBLEMS</div>
-          <div class="bp-tab" onclick="switchBP('output')">OUTPUT</div>
-          <div class="bp-tab-actions">
-            <button onclick="addTerminal()" title="New Terminal" style="font-size:16px">+</button>
-            <button onclick="document.getElementById('bottomPanel').classList.toggle('collapsed')" title="Toggle" style="font-size:12px">⊟</button>
-          </div>
-        </div>
-        <div class="bp-content">
-          <div class="bp-panel active" id="bp-terminal" style="flex-direction:column">
-            <div class="term-tabs" id="termTabs"></div>
-            <div id="termContainer"></div>
-          </div>
-          <div class="bp-panel" id="bp-problems">
-            <div class="log-area" id="problemsList"><div class="empty-state">No problems detected</div></div>
-          </div>
-          <div class="bp-panel" id="bp-output">
-            <div class="log-area" id="outputLog"></div>
-          </div>
-        </div>
-      </div>
+      <div id="searchRes" style="flex:1;overflow-y:auto;padding:4px"></div>
     </div>
-
-    <div class="resizer v" id="aiResizer"></div>
-
-    <!-- AI Panel -->
-    <div id="aiPanel" class="collapsed">
-      <div class="ai-head">
-        <div class="ai-head-title">
-          <svg width="14" height="14" viewBox="0 0 64 64"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#a78bfa"/></svg>
-          AI Assistant
+    <!-- Git -->
+    <div class="pnl" id="pnl-git">
+      <div class="pnl-hd"><span>Source Control</span></div>
+      <div style="padding:8px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px">
+        <div>
+          <div style="font-size:10px;color:#333;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:6px">Changes</div>
+          <div id="gitChanges"><div class="empty">No changes</div></div>
         </div>
-        <div class="ai-head-btns">
-          <button onclick="clearAI()" title="Clear">🗑</button>
-          <button onclick="toggleAI()" title="Close">✕</button>
-        </div>
-      </div>
-      <div class="ai-model-bar">
-        <select id="aiModel">
-          <option value="glm-4-flash">GLM-4-Flash (Free)</option>
-          <option value="glm-4">GLM-4</option>
-          <option value="glm-4-plus">GLM-4-Plus</option>
-          <option value="glm-z1-flash">GLM-Z1-Flash</option>
-        </select>
-      </div>
-      <div class="ai-quick-btns">
-        <button class="ai-q-btn" onclick="aiAction('explain')">Explain</button>
-        <button class="ai-q-btn" onclick="aiAction('fix')">Fix Bug</button>
-        <button class="ai-q-btn" onclick="aiAction('refactor')">Refactor</button>
-        <button class="ai-q-btn" onclick="aiAction('tests')">Gen Tests</button>
-        <button class="ai-q-btn" onclick="aiAction('docs')">Add Docs</button>
-        <button class="ai-q-btn" onclick="aiAction('optimize')">Optimize</button>
-        <button class="ai-q-btn" onclick="aiAction('complete')">Complete</button>
-      </div>
-      <div id="aiMessages"></div>
-      <div class="ai-input-area">
-        <div class="ai-input-box">
-          <textarea id="aiInput" placeholder="Ask anything about your code... (Enter to send, Shift+Enter for newline)"></textarea>
-          <div class="ai-input-footer">
-            <label class="ai-ctx-label"><input type="checkbox" id="aiUseCtx" checked/> Include file context</label>
-            <button class="ai-send" onclick="sendAI()">Send ↑</button>
-          </div>
+        <textarea id="gitMsg" placeholder="Commit message..." style="width:100%;height:54px;background:#111118;border:1px solid #1e1e2e;border-radius:5px;color:#ccc;padding:6px;resize:none;font-size:12px"></textarea>
+        <div style="display:flex;gap:5px">
+          <button onclick="gitCommit()" style="flex:1;padding:5px;background:#111118;border:1px solid #1e1e2e;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer;transition:all .12s" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#1e1e2e'">✓ Commit</button>
+          <button onclick="gitPush()" style="flex:1;padding:5px;background:#111118;border:1px solid #1e1e2e;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer;transition:all .12s" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#1e1e2e'">↑ Push</button>
+          <button onclick="gitPull()" style="flex:1;padding:5px;background:#111118;border:1px solid #1e1e2e;border-radius:4px;color:#ccc;font-size:12px;cursor:pointer;transition:all .12s" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#1e1e2e'">↓ Pull</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- STATUS BAR -->
-  <div id="statusbar">
-    <div class="sb-left">
-      <span class="sb-item sb-branch" id="sbBranch">⎇ main</span>
-      <span class="sb-item" id="sbProblems">✕ 0 ⚠ 0</span>
+  <div class="rz v" id="rzSidebar"></div>
+
+  <!-- Editor Area -->
+  <div id="edarea">
+    <div id="tabsbar">
+      <div id="tablist"></div>
     </div>
-    <div class="sb-right">
-      <span class="sb-item" id="sbLang" onclick="changeLang()">Plain Text</span>
-      <span class="sb-item" id="sbCursor">Ln 1, Col 1</span>
-      <span class="sb-item" id="sbIndent">Spaces: 2</span>
-      <span class="sb-item" id="sbEncoding">UTF-8</span>
-      <span class="sb-item sb-ai" onclick="toggleAI()">✦ GLM-5.1 Ready</span>
+    <div id="edwrap">
+      <div id="welcome">
+        <div class="wl-logo">
+          <svg width="34" height="34" viewBox="0 0 64 64"><polygon points="32,10 54,23 54,41 32,54 10,41 10,23" fill="none" stroke="#7c3aed" stroke-width="2.5"/><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed" opacity=".7"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/></svg>
+          Apex IDE
+        </div>
+        <div class="wl-sub">World-class web IDE · Ollama AI · 100+ languages · All platforms</div>
+        <div class="wl-btns">
+          <button class="wl-btn p" onclick="openFolder()">Open Folder</button>
+          <button class="wl-btn s" onclick="newFile()">New File</button>
+          <button class="wl-btn s" onclick="newProject()">New Project</button>
+          <button class="wl-btn s" onclick="showOllamaSetup()">✦ Setup AI</button>
+        </div>
+        <div class="wl-keys">
+          <div><span>Ctrl+P</span> Quick Open &nbsp;·&nbsp; <span>Ctrl+Shift+P</span> Commands &nbsp;·&nbsp; <span>Ctrl+S</span> Save</div>
+          <div><span>Ctrl+`</span> Terminal &nbsp;·&nbsp; <span>Ctrl+Shift+A</span> AI Panel &nbsp;·&nbsp; <span>Ctrl+B</span> Sidebar</div>
+        </div>
+      </div>
+      <div id="monaco-el" class="hidden"></div>
+    </div>
+
+    <div class="rz h" id="rzBottom"></div>
+
+    <!-- Bottom Panel -->
+    <div id="botpanel">
+      <div class="bp-tabs">
+        <div class="bp-tab on" onclick="switchBP('terminal')">Terminal</div>
+        <div class="bp-tab" onclick="switchBP('problems')">Problems</div>
+        <div class="bp-tab" onclick="switchBP('output')">Output</div>
+        <div class="bp-acts">
+          <button onclick="addTerminal()" title="New Terminal">+</button>
+          <button onclick="toggleBotPanel()" title="Toggle">⊟</button>
+        </div>
+      </div>
+      <div class="bp-content">
+        <div class="bpp on" id="bpp-terminal">
+          <div class="term-tabs-row" id="termTabs"></div>
+          <div id="termwrap"></div>
+        </div>
+        <div class="bpp" id="bpp-problems">
+          <div class="log-area" id="probList"><div class="empty">No problems detected ✓</div></div>
+        </div>
+        <div class="bpp" id="bpp-output">
+          <div class="log-area" id="outputLog"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rz v" id="rzAI" style="display:none"></div>
+
+  <!-- AI Panel -->
+  <div id="aipanel" class="off">
+    <div class="ai-hd">
+      <div class="ai-hd-l">
+        <svg width="14" height="14" viewBox="0 0 64 64"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#a78bfa"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#c4b5fd"/></svg>
+        AI Assistant
+      </div>
+      <div class="ai-hd-r">
+        <button onclick="clearAI()" title="Clear">🗑</button>
+        <button onclick="showOllamaSetup()" title="AI Setup">⚙</button>
+        <button onclick="toggleAI()" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="ai-model-bar">
+      <select id="aiModel" onchange="onModelChange()">
+        <option value="">— Select model —</option>
+        <option value="qwen3:1.7b">Qwen3 1.7B (Fast · ≤8GB RAM)</option>
+        <option value="qwen3:4b">Qwen3 4B (Balanced · ≤16GB RAM)</option>
+        <option value="qwen3:8b">Qwen3 8B (Best · ≤32GB RAM)</option>
+        <option value="qwen3:14b">Qwen3 14B (Pro · ≤64GB RAM)</option>
+        <option value="llama3.2:3b">Llama 3.2 3B</option>
+        <option value="llama3.1:8b">Llama 3.1 8B</option>
+        <option value="mistral:7b">Mistral 7B</option>
+        <option value="deepseek-coder-v2:16b">DeepSeek Coder V2</option>
+        <option value="codellama:7b">CodeLlama 7B</option>
+        <option value="phi3.5:3.8b">Phi-3.5 3.8B</option>
+        <option value="gemma2:2b">Gemma2 2B</option>
+        <option value="custom">Custom model...</option>
+      </select>
+      <button class="ai-setup-btn" onclick="showOllamaSetup()">Setup</button>
+    </div>
+    <div class="ai-qbtns">
+      <button class="ai-qb" onclick="aiAction('explain')">Explain</button>
+      <button class="ai-qb" onclick="aiAction('fix')">Fix Bug</button>
+      <button class="ai-qb" onclick="aiAction('refactor')">Refactor</button>
+      <button class="ai-qb" onclick="aiAction('tests')">Gen Tests</button>
+      <button class="ai-qb" onclick="aiAction('docs')">Add Docs</button>
+      <button class="ai-qb" onclick="aiAction('optimize')">Optimize</button>
+      <button class="ai-qb" onclick="aiAction('complete')">Complete</button>
+      <button class="ai-qb" onclick="aiAction('review')">Review</button>
+    </div>
+    <div id="aimsg"></div>
+    <div class="ai-inp-area">
+      <div class="ai-inp-box">
+        <textarea id="aiinput" placeholder="Ask anything about your code...&#10;Enter = send · Shift+Enter = newline"></textarea>
+        <div class="ai-inp-ft">
+          <label class="ai-ctx"><input type="checkbox" id="aiCtx" checked/> Include file context</label>
+          <button class="ai-send" id="aiSendBtn" onclick="sendAI()">Send ↑</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- OVERLAYS -->
-<div id="cmdPalette" class="hidden">
-  <div class="cp-bg" onclick="closeCmdPalette()"></div>
+<!-- STATUS BAR -->
+<div id="sb">
+  <div class="sbl">
+    <span class="sbi branch" id="sbBranch">⎇ main</span>
+    <span class="sbi" id="sbProblems">✕ 0  ⚠ 0</span>
+  </div>
+  <div class="sbr">
+    <span class="sbi" id="sbLang" onclick="changeLang()">Plain Text</span>
+    <span class="sbi" id="sbCursor">Ln 1, Col 1</span>
+    <span class="sbi" id="sbIndent">Spaces: 2</span>
+    <span class="sbi" id="sbEncoding">UTF-8</span>
+    <span class="sbi" id="sbAI" onclick="showOllamaSetup()" style="background:rgba(255,255,255,.12);border-radius:3px">✦ Ollama AI</span>
+  </div>
+</div>
+</div>
+
+<!-- OLLAMA SETUP MODAL -->
+<div id="ollamaModal" class="hidden">
+  <div class="om-bg" onclick="hideOllamaSetup()"></div>
+  <div class="om-box">
+    <div class="om-header">
+      <div class="om-title">
+        <svg width="22" height="22" viewBox="0 0 64 64"><polygon points="32,18 46,26 46,38 32,46 18,38 18,26" fill="#7c3aed"/><polygon points="32,24 40,29 40,35 32,40 24,35 24,29" fill="#a78bfa"/></svg>
+        Ollama AI Setup
+      </div>
+      <button class="om-close" onclick="hideOllamaSetup()">✕</button>
+    </div>
+    <div class="om-body">
+      <p class="om-sub">Ollama runs AI models <strong style="color:#a78bfa">100% locally on your device</strong> — no API keys, no subscriptions, no data sent to the cloud. Your code stays private.</p>
+
+      <!-- RAM Status -->
+      <div class="ram-card">
+        <div class="ram-title">🖥️ Your System RAM</div>
+        <div id="ramDisplay">
+          <div style="color:#444;font-size:12px;padding:8px 0">Detecting RAM...</div>
+        </div>
+      </div>
+
+      <!-- Model Recommendations -->
+      <div class="models-title">🤖 Recommended Models</div>
+      <div class="model-cards" id="modelCards">
+        <!-- Filled by JS -->
+      </div>
+
+      <!-- OS Tabs + Install Steps -->
+      <div class="install-steps">
+        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">📦 Install Ollama</div>
+        <div class="os-tabs">
+          <div class="os-tab on" onclick="switchOS('mac',this)">macOS</div>
+          <div class="os-tab" onclick="switchOS('win',this)">Windows</div>
+          <div class="os-tab" onclick="switchOS('linux',this)">Linux</div>
+        </div>
+        <div id="osInstructions"></div>
+      </div>
+
+      <!-- Connection Test -->
+      <div class="conn-test">
+        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🔌 Connection</div>
+        <div class="conn-row">
+          <input type="text" class="conn-input" id="ollamaUrl" value="http://localhost:11434" placeholder="http://localhost:11434"/>
+          <button class="conn-test-btn" onclick="testOllamaConnection()">Test Connection</button>
+        </div>
+        <div class="conn-status" id="connStatus" style="display:none"></div>
+      </div>
+
+      <div class="om-footer">
+        <button class="cancel" onclick="hideOllamaSetup()">Close</button>
+        <button class="done" onclick="saveOllamaSettings()">Save & Connect</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div id="cp" class="hidden">
+  <div class="cp-bg" onclick="closeCP()"></div>
   <div class="cp-box">
-    <input id="cpInput" type="text" placeholder="Type a command or file name..." oninput="filterCmdPalette(this.value)" onkeydown="cmdPaletteKey(event)"/>
-    <div id="cpResults"></div>
+    <input id="cpinput" type="text" placeholder="Type a command or file name..." oninput="filterCP(this.value)" onkeydown="cpKey(event)"/>
+    <div id="cpres"></div>
   </div>
 </div>
 
-<div id="ctxMenu" class="hidden"></div>
-<div id="settingsModal" class="hidden">
-  <div class="sm-bg" onclick="closeSettings()"></div>
+<!-- CONTEXT MENU -->
+<div id="ctx" class="hidden"></div>
+
+<!-- SETTINGS MODAL -->
+<div id="settModal" class="hidden">
+  <div class="sm-bg" onclick="closeSett()"></div>
   <div class="sm-box">
     <div class="sm-nav">
       <h3>Settings</h3>
-      <div class="sm-nav-item active" onclick="settingsTab('editor',this)">Editor</div>
-      <div class="sm-nav-item" onclick="settingsTab('ai',this)">AI</div>
-      <div class="sm-nav-item" onclick="settingsTab('theme',this)">Theme</div>
-      <div class="sm-nav-item" onclick="settingsTab('terminal',this)">Terminal</div>
-      <div class="sm-nav-item" onclick="settingsTab('keybindings',this)">Keybindings</div>
+      <div class="sm-ni on" onclick="settTab('editor',this)">Editor</div>
+      <div class="sm-ni" onclick="settTab('ai',this)">AI / Ollama</div>
+      <div class="sm-ni" onclick="settTab('theme',this)">Theme</div>
+      <div class="sm-ni" onclick="settTab('terminal',this)">Terminal</div>
+      <div class="sm-ni" onclick="settTab('keybindings',this)">Keybindings</div>
     </div>
-    <div class="sm-main" id="settingsMain"></div>
+    <div class="sm-main" id="settMain"></div>
   </div>
 </div>
+
+<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- Scripts -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addon-fit.min.js"></script>
-<script>var require = { paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } };</script>
+<script>var require={paths:{vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs'}};</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 <script src="app.js"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
 </body>
 </html>
