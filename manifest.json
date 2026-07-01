@@ -1,12 +1,13 @@
 {
   "name": "Apex IDE",
   "short_name": "Apex IDE",
-  "description": "Full-featured web IDE with GLM AI",
+  "description": "World-class web IDE with Ollama AI — 100% local, 100% private",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d0d0f",
   "theme_color": "#5b21b6",
   "orientation": "any",
+  "categories": ["developer", "productivity", "utilities"],
   "icons": [
     { "src": "icons/icon-72.png",  "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
     { "src": "icons/icon-96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
@@ -18,24 +19,41 @@
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "New File", "url": "/?action=new", "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] },
-    { "name": "Open Folder", "url": "/?action=open", "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] }
+    { "name": "New File", "short_name": "New File", "url": "/?action=new", "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "Open Folder", "short_name": "Open Folder", "url": "/?action=open", "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "AI Setup", "short_name": "AI Setup", "url": "/?action=ai", "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] }
   ],
   "file_handlers": [
     {
       "action": "/",
       "accept": {
-        "text/plain": [".txt",".md",".log",".env",".gitignore"],
-        "text/html": [".html",".htm",".vue",".svelte"],
+        "text/plain": [".txt",".md",".log",".env",".gitignore",".editorconfig"],
+        "text/html": [".html",".htm",".vue",".svelte",".astro"],
         "text/css": [".css",".scss",".less",".sass"],
         "text/javascript": [".js",".mjs",".cjs",".jsx",".ts",".tsx"],
-        "application/json": [".json",".jsonc"],
-        "text/x-python": [".py"],
+        "application/json": [".json",".jsonc",".json5"],
+        "text/x-python": [".py",".pyw",".pyi"],
         "text/x-rust": [".rs"],
         "text/x-go": [".go"],
-        "text/x-java": [".java"],
-        "text/x-csrc": [".c",".h",".cpp",".cc",".hpp"]
+        "text/x-java-source": [".java",".kt"],
+        "text/x-csrc": [".c",".h",".cpp",".cc",".hpp"],
+        "text/x-csharp": [".cs"],
+        "text/x-ruby": [".rb"],
+        "text/x-php": [".php"],
+        "application/x-sh": [".sh",".bash",".zsh"]
       }
+    }
+  ],
+  "protocol_handlers": [
+    { "protocol": "web+apex", "url": "/?open=%s" }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/screenshot.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Apex IDE — Full IDE with Ollama AI"
     }
   ]
 }
